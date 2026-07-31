@@ -87,7 +87,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const blogEntries: MetadataRoute.Sitemap = (blogs || [])
     .filter((b: any) => b.slug)
     .map((b: any) => ({
-      url: `${SITE_URL}/blogs/${b.slug}`,
+      url: `${SITE_URL}/blogs/${encodeURIComponent(b.slug)}`,
       lastModified: b.updatedAt ? new Date(b.updatedAt) : undefined,
       changeFrequency: "monthly",
       priority: 0.6,
@@ -96,7 +96,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const customPageEntries: MetadataRoute.Sitemap = (customPages || [])
     .filter((p: any) => p.permalink && String(p.status).toLowerCase() === "active")
     .map((p: any) => ({
-      url: `${SITE_URL}/${p.permalink}`,
+      url: `${SITE_URL}/${encodeURIComponent(p.permalink)}`,
       lastModified: p.updatedAt ? new Date(p.updatedAt) : undefined,
       changeFrequency: "monthly",
       priority: 0.6,
@@ -105,7 +105,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const galleryEntries: MetadataRoute.Sitemap = (galleries || [])
     .filter((g: any) => g.slug && String(g.status).toLowerCase() === "active")
     .map((g: any) => ({
-      url: `${SITE_URL}/gallery/${g.slug}`,
+      url: `${SITE_URL}/gallery/${encodeURIComponent(g.slug)}`,
       lastModified: g.updatedAt ? new Date(g.updatedAt) : undefined,
       changeFrequency: "monthly",
       priority: 0.5,
