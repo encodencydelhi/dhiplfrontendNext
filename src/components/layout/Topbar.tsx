@@ -205,6 +205,7 @@ const Topbar = () => {
             <div className="flex items-center gap-3">
               <a
                 href={`tel:${topbarPhone.replace(/[^0-9+]/g, "")}`}
+                aria-label="Call us"
                 className="p-1.5 bg-[#ED985F]/20 rounded-lg hover:bg-[#ED985F]/30 transition-all duration-300"
               >
                 <Phone className="w-4 h-4 text-[#ED985F]" />
@@ -212,6 +213,7 @@ const Topbar = () => {
 
               <a
                 href={`mailto:${topbarEmail}`}
+                aria-label="Email us"
                 className="p-1.5 bg-[#ED985F]/20 rounded-lg hover:bg-[#ED985F]/30 transition-all duration-300"
               >
                 <Mail className="w-4 h-4 text-[#ED985F]" />

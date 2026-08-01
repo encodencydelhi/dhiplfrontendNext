@@ -92,6 +92,25 @@ export const api = {
 };
 
 /**
+ * Fetched once in the root layout and handed to every page via
+ * LocationsContext, instead of each page's Location widget fetching its own
+ * filtered copy client-side in a useEffect. That client-only fetch rendered
+ * null during SSR (data wasn't there yet), so the city-page links never
+ * existed in the initial HTML — the /[slug] pages had no crawlable internal
+ * link anywhere on the site. Fetching the full unfiltered list server-side
+ * and filtering by category/current-path in the component fixes that.
+ */
+export async function fetchLocations(): Promise<any[]> {
+    try {
+        const res = await fetch(`${API_URL}/api/custom-pages/locations`, { next: { revalidate: 300 } });
+        const json = await res.json();
+        return json?.success ? json.data || [] : [];
+    } catch {
+        return [];
+    }
+}
+
+/**
  * Server-side equivalent of Hero.tsx's `/api/hero/active` fetch + schedule
  * filter, used to seed the first paint so the LCP hero image URL is present
  * in the initial SSR HTML instead of only appearing after the client fetch

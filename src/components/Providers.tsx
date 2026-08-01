@@ -3,9 +3,9 @@
 import { ReactNode, Suspense, useEffect, useState } from "react";
 import { LazyMotion, domAnimation } from "framer-motion";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import SmoothScroll from "@/components/SmoothScroll";
 import { SeoProvider } from "@/context/SeoContext";
 import WhatsAppFloat from "@/components/ui/WhatsAppFloat";
@@ -33,8 +33,7 @@ const Providers = ({ children }: { children: ReactNode }) => {
     <LazyMotion features={domAnimation} strict>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <Sonner />
-          <Toaster />
+          <ToastContainer position="top-right" autoClose={4000} newestOnTop />
           <SeoProvider>
             <SmoothScroll stopped={isBookingOpen}>
               {children}

@@ -164,35 +164,11 @@ const navItems = [
 
 ];
 
-/* ─── Animation Variants ─── */
-
-const dropdownVariants = {
-  hidden: { opacity: 0, y: -8, scale: 0.97, filter: "blur(4px)" },
-  visible: {
-    opacity: 1, y: 0, scale: 1, filter: "blur(0px)",
-    transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as any, staggerChildren: 0.04, delayChildren: 0.05 },
-  },
-  exit: { opacity: 0, y: -6, scale: 0.97, filter: "blur(3px)", transition: { duration: 0.22 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, x: -8 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] as any } },
-};
-
-const subDropdownVariants = {
-  hidden: { opacity: 0, x: -10, scale: 0.96, filter: "blur(4px)" },
-  visible: {
-    opacity: 1, x: 0, scale: 1, filter: "blur(0px)",
-    transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as any, staggerChildren: 0.035, delayChildren: 0.04 },
-  },
-  exit: { opacity: 0, x: -8, scale: 0.96, filter: "blur(3px)", transition: { duration: 0.18 } },
-};
-
-const subItemVariants = {
-  hidden: { opacity: 0, x: -6 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] as any } },
-};
+/* Desktop dropdown open/close is CSS-transition driven (see Navbar below) —
+   framer-motion variants were removed from there since the dropdowns are
+   now always mounted for SEO and tracking ~68 elements as motion instances
+   was adding real hydration cost. Mobile menu below still uses framer-motion
+   since it's genuinely mount/unmount (hamburger-triggered), not always-on. */
 
 /* ─── Navbar ─── */
 
@@ -329,138 +305,130 @@ const Navbar = () => {
                   >
                     <span className="leading-none">{item.label}</span>
                     {item.dropdown && (
-                      <m.span
-                        animate={{ rotate: activeDropdown === item.label ? 180 : 0 }}
-                        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                        className="inline-flex items-center leading-none"
-                        style={{ lineHeight: 0 }}
+                      <span
+                        className="inline-flex items-center leading-none transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                        style={{ lineHeight: 0, transform: activeDropdown === item.label ? "rotate(180deg)" : "rotate(0deg)" }}
                       >
                         <ChevronDown className="w-3.5 h-3.5" />
-                      </m.span>
+                      </span>
                     )}
                     <span className="absolute -bottom-0.5 left-0 w-0 h-[1.5px] transition-all duration-300 group-hover:w-full bg-gradient-to-r from-[#134698] to-[#DE802B]" />
                   </button>
                 )}
 
-                {/* ─── Level 1 Dropdown ─── */}
-                <AnimatePresence>
-                  {item.dropdown && activeDropdown === item.label && (
-                    <m.div
-                      variants={dropdownVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className={`absolute top-full pt-5 ${item.alignRight ? "right-0" : "left-0"}`}
-                      style={{ zIndex: 9999 }}
+                {/* ─── Level 1 Dropdown ───
+                    Always rendered (visibility toggled via a CSS transition, not
+                    JS mount/unmount or framer-motion) so every link exists in the
+                    server-rendered HTML for crawlers/SEO tools, not just after a
+                    mouse hover — and so hydrating ~68 always-mounted links doesn't
+                    cost a framer-motion instance each (this was a real chunk of
+                    the site's Total Blocking Time). */}
+                {item.dropdown && (
+                  <div
+                    className={`absolute top-full pt-5 ${item.alignRight ? "right-0" : "left-0"} transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${activeDropdown === item.label
+                      ? "opacity-100 translate-y-0 scale-100 blur-none"
+                      : "opacity-0 -translate-y-2 scale-[0.97] blur-sm pointer-events-none"
+                      }`}
+                    style={{ zIndex: 9999 }}
+                  >
+                    {/* Arrow tip */}
+                    <div
+                      className={`absolute top-3 w-3 h-3 bg-white rotate-45 border-t border-l border-[#134698]/10 ${item.alignRight ? "right-6" : "left-6"}`}
+                      style={{ zIndex: 10000 }}
+                    />
+
+                    <div
+                      className="bg-white rounded-2xl py-3 min-w-[240px]"
+                      style={{
+                        boxShadow: "0 8px 40px 0 rgba(19,70,152,0.14), 0 2px 8px 0 rgba(19,70,152,0.08), 0 0 0 1px rgba(19,70,152,0.07)",
+                      }}
                     >
-                      {/* Arrow tip */}
-                      <div
-                        className={`absolute top-3 w-3 h-3 bg-white rotate-45 border-t border-l border-[#134698]/10 ${item.alignRight ? "right-6" : "left-6"}`}
-                        style={{ zIndex: 10000 }}
-                      />
+                      {/* Top accent line */}
+                      <div className="h-[2px] mx-4 mb-3 rounded-full bg-gradient-to-r from-[#134698] via-[#DE802B] to-transparent opacity-60" />
 
-                      <div
-                        className="bg-white rounded-2xl py-3 min-w-[240px]"
-                        style={{
-                          boxShadow: "0 8px 40px 0 rgba(19,70,152,0.14), 0 2px 8px 0 rgba(19,70,152,0.08), 0 0 0 1px rgba(19,70,152,0.07)",
-                        }}
-                      >
-                        {/* Top accent line */}
-                        <div className="h-[2px] mx-4 mb-3 rounded-full bg-gradient-to-r from-[#134698] via-[#DE802B] to-transparent opacity-60" />
-
-                        {item.dropdown.map((subItem, idx) => (
-                          <m.div
-                            key={idx}
-                            variants={itemVariants}
-                            className="relative"
-                            onMouseEnter={() => subItem.subItems && setActiveSubDropdown(subItem.label)}
-                            onMouseLeave={() => setActiveSubDropdown(null)}
-                          >
-                            {subItem.href ? (
-                              <a
-                                href={subItem.href}
-                                className="flex items-center justify-between px-5 py-2.5 text-[13px] font-medium text-neutral-600 hover:text-[#134698] hover:bg-[#134698]/[0.04] transition-all duration-200 group mx-1 rounded-lg"
-                              >
-                                <span className="relative">
-                                  {subItem.label}
-                                  <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-[#DE802B] transition-all duration-300 group-hover:w-full" />
-                                </span>
-                                {subItem.subItems && (
-                                  <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-[#DE802B] opacity-70" />
-                                )}
-                              </a>
-                            ) : (
-                              <button
-                                className="flex items-center justify-between px-5 py-2.5 text-[13px] font-medium text-neutral-600 hover:text-[#134698] hover:bg-[#134698]/[0.04] transition-all duration-200 group w-full mx-1 rounded-lg text-left"
-                                aria-label={`Toggle ${subItem.label} submenu`}
-                                aria-expanded={activeSubDropdown === subItem.label}
-                              >
-                                <span className="relative">
-                                  {subItem.label}
-                                  <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-[#DE802B] transition-all duration-300 group-hover:w-full" />
-                                </span>
-                                {subItem.subItems && (
-                                  <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-[#DE802B] opacity-70" />
-                                )}
-                              </button>
-                            )}
-
-                            {/* ─── Level 2 Sub-Dropdown ─── */}
-                            <AnimatePresence>
-                              {subItem.subItems && activeSubDropdown === subItem.label && (
-                                <m.div
-                                  variants={subDropdownVariants}
-                                  initial="hidden"
-                                  animate="visible"
-                                  exit="exit"
-                                  className="absolute left-full top-0 ml-2"
-                                  style={{ zIndex: 99999 }}
-                                  onMouseEnter={() => setActiveSubDropdown(subItem.label)}
-                                  onMouseLeave={() => setActiveSubDropdown(null)}
-                                >
-                                  {/* Arrow tip */}
-                                  <div
-                                    className="absolute left-[-5px] top-4 w-2.5 h-2.5 bg-[#134698] rotate-45"
-                                    style={{ zIndex: 100000 }}
-                                  />
-
-                                  <div
-                                    className="rounded-2xl py-2.5 min-w-[210px]"
-                                    style={{
-                                      background: "linear-gradient(145deg, #1a56b8 0%, #134698 60%, #0e3578 100%)",
-                                      boxShadow: "0 12px 48px 0 rgba(19,70,152,0.30), 0 4px 16px 0 rgba(19,70,152,0.20), inset 0 1px 0 rgba(255,255,255,0.12)",
-                                    }}
-                                  >
-                                    <div className="h-[1px] mx-3 mb-2 rounded-full bg-gradient-to-r from-white/20 via-white/40 to-transparent" />
-
-                                    {subItem.subItems.map((subsub, subIdx) => (
-                                      <m.button
-                                        key={subIdx}
-                                        variants={subItemVariants}
-                                        onClick={() => {
-                                          if (subsub.isPdf) {
-                                            window.open(subsub.href, "_blank", "noopener,noreferrer");
-                                          } else {
-                                            window.location.href = subsub.href;
-                                          }
-                                        }}
-                                        className="flex items-center gap-2.5 w-full text-left px-5 py-2.5 text-[12.5px] font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 group"
-                                      >
-                                        <span className="w-1.5 h-1.5 rounded-full bg-[#DE802B] opacity-60 group-hover:opacity-100 transition-all duration-200 flex-shrink-0" />
-                                        {subsub.label}
-                                      </m.button>
-                                    ))}
-                                  </div>
-                                </m.div>
+                      {item.dropdown.map((subItem, idx) => (
+                        <div
+                          key={idx}
+                          className="relative"
+                          onMouseEnter={() => subItem.subItems && setActiveSubDropdown(subItem.label)}
+                          onMouseLeave={() => setActiveSubDropdown(null)}
+                        >
+                          {subItem.href ? (
+                            <a
+                              href={subItem.href}
+                              className="flex items-center justify-between px-5 py-2.5 text-[13px] font-medium text-neutral-600 hover:text-[#134698] hover:bg-[#134698]/[0.04] transition-all duration-200 group mx-1 rounded-lg"
+                            >
+                              <span className="relative">
+                                {subItem.label}
+                                <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-[#DE802B] transition-all duration-300 group-hover:w-full" />
+                              </span>
+                              {subItem.subItems && (
+                                <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-[#DE802B] opacity-70" />
                               )}
-                            </AnimatePresence>
+                            </a>
+                          ) : (
+                            <button
+                              className="flex items-center justify-between px-5 py-2.5 text-[13px] font-medium text-neutral-600 hover:text-[#134698] hover:bg-[#134698]/[0.04] transition-all duration-200 group w-full mx-1 rounded-lg text-left"
+                              aria-label={`Toggle ${subItem.label} submenu`}
+                              aria-expanded={activeSubDropdown === subItem.label}
+                            >
+                              <span className="relative">
+                                {subItem.label}
+                                <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-[#DE802B] transition-all duration-300 group-hover:w-full" />
+                              </span>
+                              {subItem.subItems && (
+                                <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-[#DE802B] opacity-70" />
+                              )}
+                            </button>
+                          )}
 
-                          </m.div>
-                        ))}
-                      </div>
-                    </m.div>
-                  )}
-                </AnimatePresence>
+                          {/* ─── Level 2 Sub-Dropdown ─── */}
+                          {subItem.subItems && (
+                            <div
+                              className={`absolute left-full top-0 ml-2 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${activeSubDropdown === subItem.label
+                                ? "opacity-100 translate-x-0 scale-100 blur-none"
+                                : "opacity-0 -translate-x-2.5 scale-[0.96] blur-sm pointer-events-none"
+                                }`}
+                              style={{ zIndex: 99999 }}
+                              onMouseEnter={() => setActiveSubDropdown(subItem.label)}
+                              onMouseLeave={() => setActiveSubDropdown(null)}
+                            >
+                              {/* Arrow tip */}
+                              <div
+                                className="absolute left-[-5px] top-4 w-2.5 h-2.5 bg-[#134698] rotate-45"
+                                style={{ zIndex: 100000 }}
+                              />
+
+                              <div
+                                className="rounded-2xl py-2.5 min-w-[210px]"
+                                style={{
+                                  background: "linear-gradient(145deg, #1a56b8 0%, #134698 60%, #0e3578 100%)",
+                                  boxShadow: "0 12px 48px 0 rgba(19,70,152,0.30), 0 4px 16px 0 rgba(19,70,152,0.20), inset 0 1px 0 rgba(255,255,255,0.12)",
+                                }}
+                              >
+                                <div className="h-[1px] mx-3 mb-2 rounded-full bg-gradient-to-r from-white/20 via-white/40 to-transparent" />
+
+                                {subItem.subItems.map((subsub, subIdx) => (
+                                  <a
+                                    key={subIdx}
+                                    href={subsub.href}
+                                    target={subsub.isPdf ? "_blank" : undefined}
+                                    rel={subsub.isPdf ? "noopener noreferrer" : undefined}
+                                    className="flex items-center gap-2.5 w-full text-left px-5 py-2.5 text-[12.5px] font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 group"
+                                  >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#DE802B] opacity-60 group-hover:opacity-100 transition-all duration-200 flex-shrink-0" />
+                                    {subsub.label}
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
               </div>
             ))}
@@ -635,21 +603,17 @@ const Navbar = () => {
                                           </p>
                                         )}
                                         {sub.subItems?.map((subsub, subIdx) => (
-                                          <button
+                                          <a
                                             key={subIdx}
-                                            onClick={() => {
-                                              if (subsub.isPdf) {
-                                                window.open(subsub.href, "_blank", "noopener,noreferrer");
-                                              } else {
-                                                window.location.href = subsub.href;
-                                              }
-                                              setIsMobileMenuOpen(false);
-                                            }}
+                                            href={subsub.href}
+                                            target={subsub.isPdf ? "_blank" : undefined}
+                                            rel={subsub.isPdf ? "noopener noreferrer" : undefined}
+                                            onClick={() => setIsMobileMenuOpen(false)}
                                             className="flex items-center gap-2 w-full text-left px-5 py-1.5 text-[11.5px] text-neutral-500 hover:text-[#DE802B] transition-all duration-150"
                                           >
                                             <span className="w-1 h-1 rounded-full bg-[#DE802B] opacity-50 flex-shrink-0" />
                                             {subsub.label}
-                                          </button>
+                                          </a>
                                         ))}
                                       </div>
                                     ))}

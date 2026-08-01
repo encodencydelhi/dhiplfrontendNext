@@ -1,43 +1,30 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { api } from "@/lib/api";
+import { useLocations } from "@/context/LocationsContext";
 
 interface LocationProps {
     category?: string;
 }
 
+// Backend does a singular/plural-insensitive match on serviceCategory
+// (strips a trailing "s", case-insensitive) — mirrored here so filtering
+// the already-fetched full list client-side matches what the old
+// `?category=X` API call used to return.
+const normalize = (value: string) => value.trim().toLowerCase().replace(/s$/, "");
+
 const Location: React.FC<LocationProps> = ({ category }) => {
-    const [locations, setLocations] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const locations = useLocations();
     const pathname = usePathname();
     const currentPath = pathname.substring(1); // Remove leading slash
 
-    useEffect(() => {
-        const fetchLocations = async () => {
-            try {
-                const url = category
-                    ? `/api/custom-pages/locations?category=${encodeURIComponent(category)}`
-                    : "/api/custom-pages/locations";
-                const response = await api.get(url);
-                if (response.data.success) {
-                    setLocations(response.data.data);
-                }
-            } catch (error) {
-                console.error("Error fetching locations:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchLocations();
-    }, [category]);
-
-    if (isLoading) return null;
-
-    // Filter out the current city/location from the list
-    const filteredLocations = locations.filter(loc => loc.permalink !== currentPath);
+    const filteredLocations = locations.filter((loc) => {
+        if (loc.permalink === currentPath) return false;
+        if (category && normalize(loc.serviceCategory || "") !== normalize(category)) return false;
+        return true;
+    });
 
     if (filteredLocations.length === 0) return null;
 
@@ -45,9 +32,9 @@ const Location: React.FC<LocationProps> = ({ category }) => {
         <div className="bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-wrap gap-4">
-                    {filteredLocations.map((loc: any, index: number) => (
+                    {filteredLocations.map((loc, index) => (
                         <Link
-                            key={index}
+                            key={loc._id || index}
                             href={`/${loc.permalink}`}
                             className="group px-3 py-1.5 border border-gray-300 text-xs text-gray-700 hover:bg-[#DE802B] hover:text-white transition-all duration-300 font-medium shadow-md hover:shadow-lg"
                         >

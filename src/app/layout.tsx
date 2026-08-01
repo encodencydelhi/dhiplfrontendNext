@@ -4,8 +4,8 @@ import Script from "next/script";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import GlobalFooterScripts from "@/components/GlobalFooterScripts";
-import AnalyticsLoader from "@/components/AnalyticsLoader";
-import { API_URL } from "@/lib/api";
+import { API_URL, fetchLocations } from "@/lib/api";
+import { LocationsProvider } from "@/context/LocationsContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -31,11 +31,13 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locations = await fetchLocations();
+
   return (
     <html lang="en" className={`${inter.className} ${playfair.variable}`}>
       <body>
@@ -73,11 +75,11 @@ export default function RootLayout({
           `}
         </Script>
 
-        <Providers>{children}</Providers>
+        <LocationsProvider locations={locations}>
+          <Providers>{children}</Providers>
 
-        <GlobalFooterScripts />
-
-        <AnalyticsLoader />
+          <GlobalFooterScripts />
+        </LocationsProvider>
       </body>
     </html>
   );
