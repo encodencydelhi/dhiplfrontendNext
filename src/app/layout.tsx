@@ -37,6 +37,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locations = await fetchLocations();
+  const gaId = process.env.NEXT_PUBLIC_GA4_ID;
 
   return (
     <html lang="en" className={`${inter.className} ${playfair.variable}`}>
@@ -79,6 +80,21 @@ export default async function RootLayout({
           <Providers>{children}</Providers>
 
           <GlobalFooterScripts />
+
+          {/* Google Analytics 4 — only active when NEXT_PUBLIC_GA4_ID is set. */}
+          {gaId && (
+            <>
+              <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
+              <Script id="ga4-init" strategy="afterInteractive">
+                {`
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag() { dataLayer.push(arguments); }
+                  gtag("js", new Date());
+                  gtag("config", "${gaId}");
+                `}
+              </Script>
+            </>
+          )}
         </LocationsProvider>
       </body>
     </html>
