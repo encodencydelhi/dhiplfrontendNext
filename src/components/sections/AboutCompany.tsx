@@ -2,6 +2,8 @@
 
 import { m } from "framer-motion";
 import { Target, Award } from "lucide-react";
+import Image from "next/image";
+import { API_IS_LOCAL } from "@/lib/api";
 
 const AboutCompany = () => {
 
@@ -24,13 +26,16 @@ const AboutCompany = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 1, delay: (idx * 100) / 1000, ease: [0.42, 0, 0.58, 1] }}
-                  className="relative overflow-hidden rounded-2xl group"
+                  className="relative overflow-hidden rounded-2xl group aspect-square"
                 >
-                  <img
+                  <Image
                     src={src}
                     alt={`Interior design ${idx + 1}`}
-                    className="w-full aspect-square object-cover transition-transform duration-700 group-hover:scale-110"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
                     loading="lazy"
+                    unoptimized={API_IS_LOCAL}
                   />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-white/10 to-transparent opacity-60" />
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">

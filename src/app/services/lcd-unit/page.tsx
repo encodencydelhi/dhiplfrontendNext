@@ -1,17 +1,23 @@
 import type { Metadata } from "next";
-import { fetchServiceDetail, buildServiceMetadata, serviceDetailSeo, AdvancedSeoTags } from "@/lib/seo";
+import { fetchServiceDetail, fetchPageSeo, buildMetadata, mergePageSeo, AdvancedSeoTags } from "@/lib/seo";
 import LCDUnitView from "@/components/pages/services/LCDUnit";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const data = await fetchServiceDetail("Modular LCD Unit");
-  return buildServiceMetadata(data);
+  const [pageSeo, data] = await Promise.all([
+    fetchPageSeo("/services/lcd-unit"),
+    fetchServiceDetail("Modular LCD Unit"),
+  ]);
+  return buildMetadata(mergePageSeo(pageSeo, data), undefined, "/services/lcd-unit");
 }
 
 export default async function Page() {
-  const data = await fetchServiceDetail("Modular LCD Unit");
+  const [pageSeo, data] = await Promise.all([
+    fetchPageSeo("/services/lcd-unit"),
+    fetchServiceDetail("Modular LCD Unit"),
+  ]);
   return (
     <>
-      <AdvancedSeoTags seo={serviceDetailSeo(data)} />
+      <AdvancedSeoTags seo={mergePageSeo(pageSeo, data)} />
       <LCDUnitView />
     </>
   );

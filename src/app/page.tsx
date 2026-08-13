@@ -25,7 +25,7 @@ const SectionPlaceholder = () => (
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await fetchPageSeo("/");
-  return buildMetadata(seo);
+  return buildMetadata(seo, undefined, "/");
 }
 
 export default async function Index() {

@@ -4,7 +4,7 @@ import InfrastructureView from "@/components/pages/about/Infrastructure";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await fetchPageSeo("/about/infrastructure");
-  return buildMetadata(seo);
+  return buildMetadata(seo, undefined, "/about/infrastructure");
 }
 
 export default async function Page() {

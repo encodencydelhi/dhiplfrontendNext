@@ -1,9 +1,25 @@
 import type { Metadata } from "next";
 import { permanentRedirect, notFound } from "next/navigation";
-import { fetchBlogBySlug, buildBlogMetadata, AdvancedSeoTags } from "@/lib/seo";
+import { fetchBlogBySlug, fetchPageSeo, mergePageSeo, buildMetadata, AdvancedSeoTags } from "@/lib/seo";
 import BlogDetailView from "@/components/pages/BlogDetail";
 
-const canonicalizeSlug = (slug: string) => slug.trim().toLowerCase().replace(/\s+/g, "-");
+const canonicalizeSlug = (slug: string) => {
+  let s = slug;
+  try { s = decodeURIComponent(slug); } catch {}
+  return s.trim().toLowerCase().replace(/\s+/g, "-");
+};
+
+async function loadBlogSeo(normalized: string) {
+  const [pageSeo, post] = await Promise.all([
+    fetchPageSeo(`/blogs/${normalized}`),
+    fetchBlogBySlug(normalized),
+  ]);
+  if (!post) notFound();
+  // The Blog model carries metaTitle/metaDescription/ogImage/canonicalTag/
+  // schemaMarkup directly on the post — wrap them as the fallback `seo` so an
+  // Admin → Add Meta record for the blog path can override per field.
+  return mergePageSeo(pageSeo, { seo: { ...post, title: post.title }, title: post.title });
+}
 
 export async function generateMetadata({
   params,
@@ -13,9 +29,8 @@ export async function generateMetadata({
   const { id } = await params;
   const normalized = canonicalizeSlug(id);
   if (normalized !== id) permanentRedirect(`/blogs/${normalized}`);
-  const post = await fetchBlogBySlug(normalized);
-  if (!post) notFound();
-  return buildBlogMetadata(post);
+  const seo = await loadBlogSeo(normalized);
+  return buildMetadata(seo, undefined, `/blogs/${normalized}`);
 }
 
 export default async function Page({
@@ -26,11 +41,10 @@ export default async function Page({
   const { id } = await params;
   const normalized = canonicalizeSlug(id);
   if (normalized !== id) permanentRedirect(`/blogs/${normalized}`);
-  const post = await fetchBlogBySlug(normalized);
-  if (!post) notFound();
+  const seo = await loadBlogSeo(normalized);
   return (
     <>
-      <AdvancedSeoTags seo={post} />
+      <AdvancedSeoTags seo={seo} />
       <BlogDetailView />
     </>
   );

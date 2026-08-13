@@ -4,7 +4,7 @@ import DownloadsPageView from "@/components/pages/downloads/DownloadsPage";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await fetchPageSeo("/downloads");
-  return buildMetadata(seo);
+  return buildMetadata(seo, undefined, "/downloads");
 }
 
 export default async function Page() {

@@ -2,7 +2,8 @@
 
 import { m } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import { api, API_URL } from "@/lib/api";
+import { api, API_URL, API_IS_LOCAL } from "@/lib/api";
+import Image from "next/image";
 
 interface Client {
   _id: string;
@@ -186,13 +187,14 @@ const LogoMarquee = () => {
                       rel="noopener noreferrer"
                       className="group flex items-center justify-center h-36 px-6 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-[#DE802B]/20 transition-all duration-300"
                     >
-                      <img
+                      <Image
                         src={`${API_URL}${logo.image?.startsWith('/') ? '' : '/'}${logo.image}`}
                         alt={logo.altText || logo.name}
-                        width="160"
-                        height="64"
+                        width={160}
+                        height={64}
                         className="  object-contain transition-all duration-300 group-hover:scale-110"
                         loading="lazy"
+                        unoptimized={API_IS_LOCAL}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = "none";
@@ -208,13 +210,14 @@ const LogoMarquee = () => {
                     </a>
                   ) : (
                     <div className="group flex items-center justify-center h-24 px-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                      <img
+                      <Image
                         src={`${API_URL}${logo.image.startsWith('/') ? '' : '/'}${logo.image}`}
                         alt={logo.altText || logo.name}
-                        width="160"
-                        height="64"
+                        width={160}
+                        height={64}
                         className="max-w-full max-h-16 object-contain"
                         loading="lazy"
+                        unoptimized={API_IS_LOCAL}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = "none";

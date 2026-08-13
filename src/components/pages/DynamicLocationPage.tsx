@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
 import { CheckCircle, X, MapPin } from "lucide-react";
+import Image from "next/image";
 import Topbar from "@/components/layout/Topbar";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/sections/Footer";
 import DynamicHero from "@/components/layout/DynamicHero";
 import Location from "@/components/sections/Location";
-import { api, API_URL } from "@/lib/api";
+import { api, API_URL, API_IS_LOCAL } from "@/lib/api";
 import { useSeo } from "@/context/SeoContext";
 import { cleanDescription } from "@/lib/utils";
 
@@ -145,13 +146,16 @@ const DynamicLocationPage = () => {
                                     whileInView={{ opacity: 1, scale: 1 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: idx * 0.1 }}
-                                    className="relative overflow-hidden rounded-2xl group cursor-pointer shadow-xl border border-gray-100"
+                                    className="relative aspect-square overflow-hidden rounded-2xl group cursor-pointer shadow-xl border border-gray-100"
                                     onClick={() => setSelectedImage({ ...img, url: `${API_URL}${img.url.startsWith('/') ? '' : '/'}${img.url}` })}
                                 >
-                                    <img
+                                    <Image loading="lazy"
                                         src={`${API_URL}${img.url.startsWith('/') ? '' : '/'}${img.url}`}
                                         alt={img.altTag || `Gallery ${idx + 1}`}
-                                        className="w-full aspect-square object-cover transition-transform duration-700 group-hover:scale-110"
+                                        fill
+                                        sizes="(max-width: 1023px) 50vw, 540px"
+                                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                        unoptimized={API_IS_LOCAL}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                         <div className="bg-white/90 p-3 rounded-full transform scale-0 group-hover:scale-100 transition-transform duration-300">
@@ -265,10 +269,13 @@ const DynamicLocationPage = () => {
                             exit={{ scale: 0.9, opacity: 0 }}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <img
+                            <Image
                                 src={selectedImage.url}
                                 alt={selectedImage.altTag}
+                                width={1600}
+                                height={1200}
                                 className="w-full h-auto rounded-lg shadow-2xl"
+                                unoptimized={API_IS_LOCAL}
                             />
                         </m.div>
                     </m.div>

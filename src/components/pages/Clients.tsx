@@ -9,12 +9,13 @@ import {
 
 
 
-import { api, API_URL } from "@/lib/api";
+import { api, API_URL, API_IS_LOCAL } from "@/lib/api";
 
 import Topbar from "@/components/layout/Topbar";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/sections/Footer";
 import DynamicHero from "@/components/layout/DynamicHero";
+import Image from "next/image";
 
 interface Client {
   _id: string;
@@ -39,13 +40,14 @@ const LogoCard = ({ client, index }: { client: Client; index: number }) => {
 
       {/* LOGO CONTAINER */}
       <div className="h-full w-full flex items-center justify-center px-6 pt-8">
-        <img
+        <Image
           src={`${API_URL}${client.image.startsWith('/') ? '' : '/'}${client.image}`}
           alt={client.altText || client.name}
-          width="180"
-          height="85"
+          width={180}
+          height={85}
           className="object-contain transition-transform duration-300 group-hover:scale-105"
           loading="lazy"
+          unoptimized={API_IS_LOCAL}
         />
       </div>
 
@@ -81,13 +83,14 @@ const LogoCard = ({ client, index }: { client: Client; index: number }) => {
 // ✅ MARQUEE CARD
 const LogoMarqueeCard = ({ client }: { client: Client }) => {
   const CardContent = (
-    <img
+    <Image
       src={`${API_URL}${client.image.startsWith('/') ? '' : '/'}${client.image}`}
       alt={client.altText || client.name}
-      width="160"
-      height="80"
+      width={160}
+      height={80}
       className="max-w-full max-h-20 object-contain transition-all duration-300 group-hover:scale-110"
       loading="lazy"
+      unoptimized={API_IS_LOCAL}
     />
   );
 

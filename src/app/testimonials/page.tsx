@@ -4,7 +4,7 @@ import TestimonialsPageView from "@/components/pages/TestimonialsPage";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await fetchPageSeo("/testimonials");
-  return buildMetadata(seo);
+  return buildMetadata(seo, undefined, "/testimonials");
 }
 
 export default async function Page() {

@@ -4,7 +4,7 @@ import ClientsView from "@/components/pages/Clients";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await fetchPageSeo("/clients");
-  return buildMetadata(seo);
+  return buildMetadata(seo, undefined, "/clients");
 }
 
 export default async function Page() {

@@ -1,19 +1,25 @@
 import type { Metadata } from "next";
-import { fetchServiceDetail, buildServiceMetadata, serviceDetailSeo, AdvancedSeoTags } from "@/lib/seo";
+import { fetchPageSeo, buildMetadata, mergePageSeo, fetchServiceDetail, AdvancedSeoTags } from "@/lib/seo";
 import WindowImagesView from "@/components/pages/portfolio/merchnadising/WindowImages";
 
 // PageTemplate fetches useServiceDetail(category) — the SEO lookup key is the
 // category, not the more specific subCategory.
 export async function generateMetadata(): Promise<Metadata> {
-  const data = await fetchServiceDetail("Merchandising");
-  return buildServiceMetadata(data);
+  const [pageSeo, data] = await Promise.all([
+    fetchPageSeo("/portfolio/merchandising/window-display-images"),
+    fetchServiceDetail("Merchandising"),
+  ]);
+  return buildMetadata(mergePageSeo(pageSeo, data), undefined, "/portfolio/merchandising/window-display-images");
 }
 
 export default async function Page() {
-  const data = await fetchServiceDetail("Merchandising");
+  const [pageSeo, data] = await Promise.all([
+    fetchPageSeo("/portfolio/merchandising/window-display-images"),
+    fetchServiceDetail("Merchandising"),
+  ]);
   return (
     <>
-      <AdvancedSeoTags seo={serviceDetailSeo(data)} />
+      <AdvancedSeoTags seo={mergePageSeo(pageSeo, data)} />
       <WindowImagesView />
     </>
   );

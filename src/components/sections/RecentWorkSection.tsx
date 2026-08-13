@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { m } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
+import { API_IS_LOCAL } from "@/lib/api";
 
 interface GalleryItem {
   id: number;
@@ -118,11 +120,14 @@ const RecentWorkSection = ({ galleryItems, onImageClick, viewAllLink = "/portfol
             className="relative group overflow-hidden rounded-2xl shadow-lg cursor-pointer aspect-[4/3]"
             onClick={() => onImageClick(item)}
           >
-            <img
+            <Image
               src={item.url}
               alt={item.title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              fill
+              sizes="(max-width: 768px) 100vw, 33vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
               loading="lazy"
+              unoptimized={API_IS_LOCAL}
             />
 
             {/* Clean image-only view as requested */}

@@ -4,7 +4,7 @@ import PortfolioView from "@/components/pages/Portfolio";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await fetchPageSeo("/portfolio");
-  return buildMetadata(seo);
+  return buildMetadata(seo, undefined, "/portfolio");
 }
 
 export default async function Page() {

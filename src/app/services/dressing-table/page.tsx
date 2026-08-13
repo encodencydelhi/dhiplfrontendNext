@@ -1,17 +1,23 @@
 import type { Metadata } from "next";
-import { fetchServiceDetail, buildServiceMetadata, serviceDetailSeo, AdvancedSeoTags } from "@/lib/seo";
+import { fetchServiceDetail, fetchPageSeo, buildMetadata, mergePageSeo, AdvancedSeoTags } from "@/lib/seo";
 import DressingTableView from "@/components/pages/services/DressingTable";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const data = await fetchServiceDetail("Dressing Table");
-  return buildServiceMetadata(data);
+  const [pageSeo, data] = await Promise.all([
+    fetchPageSeo("/services/dressing-table"),
+    fetchServiceDetail("Dressing Table"),
+  ]);
+  return buildMetadata(mergePageSeo(pageSeo, data), undefined, "/services/dressing-table");
 }
 
 export default async function Page() {
-  const data = await fetchServiceDetail("Dressing Table");
+  const [pageSeo, data] = await Promise.all([
+    fetchPageSeo("/services/dressing-table"),
+    fetchServiceDetail("Dressing Table"),
+  ]);
   return (
     <>
-      <AdvancedSeoTags seo={serviceDetailSeo(data)} />
+      <AdvancedSeoTags seo={mergePageSeo(pageSeo, data)} />
       <DressingTableView />
     </>
   );

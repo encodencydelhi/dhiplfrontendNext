@@ -3,8 +3,10 @@
 import { m } from "framer-motion";
 
 import PageLayout from "@/components/layout/PageLayout";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { API_IS_LOCAL } from "@/lib/api";
 
 const furniture = [
   { title: "Wardrobe", description: "Custom wardrobes designed to maximize storage and style", image: "https://images.unsplash.com/photo-1558997519-83ea9252edf8?q=80&w=600", href: "/services/wardrobe" },
@@ -43,8 +45,8 @@ const Furniture = () => {
                 transition={{ duration: 0.8, delay: idx * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
               >
                 <Link href={item.href}>
-                  <div className="relative rounded-2xl overflow-hidden mb-4">
-                    <img src={item.image} alt={item.title} className="w-full aspect-[4/3] object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="relative rounded-2xl overflow-hidden mb-4 aspect-[4/3]">
+                    <Image src={item.image} alt={item.title} fill sizes="(max-width:768px) 50vw, 33vw" className="object-cover group-hover:scale-110 transition-transform duration-700" unoptimized={API_IS_LOCAL} />
                     <div className="absolute inset-0 bg-gradient-to-t from-charcoal/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <span className="inline-flex items-center gap-2 text-white font-medium">

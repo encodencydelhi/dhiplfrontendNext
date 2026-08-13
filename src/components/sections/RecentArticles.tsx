@@ -4,7 +4,8 @@ import { m, AnimatePresence } from "framer-motion";
 import { ArrowRight, Calendar, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { api, API_URL } from "@/lib/api";
+import { api, API_URL, API_IS_LOCAL } from "@/lib/api";
+import Image from "next/image";
 
 const RecentArticles = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -214,11 +215,14 @@ const RecentArticles = () => {
                   >
                     {/* Image with Glossy Effect */}
                     <div className="relative overflow-hidden aspect-[16/9]">
-                      <img
+                      <Image
                         src={`${API_URL}${blog.image?.startsWith('/') ? '' : '/'}${blog.image}`}
                         alt={blog.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover group-hover:scale-110 transition-transform duration-700"
                         loading="lazy"
+                        unoptimized={API_IS_LOCAL}
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80";
                         }}

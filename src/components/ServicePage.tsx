@@ -6,6 +6,8 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Location from "@/components/sections/Location";
+import Image from "next/image";
+import { API_IS_LOCAL } from "@/lib/api";
 
 interface ServicePageProps {
   title: string;
@@ -66,11 +68,15 @@ const ServicePage = ({ title, subtitle, description, features, image, relatedSer
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
             >
-              <div className="rounded-2xl overflow-hidden">
-                <img
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+                <Image
                   src={image}
                   alt={title}
-                  className="w-full aspect-[4/3] object-cover"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                  loading="lazy"
+                  unoptimized={API_IS_LOCAL}
                 />
               </div>
             </m.div>

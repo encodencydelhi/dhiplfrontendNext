@@ -4,7 +4,7 @@ import TeamView from "@/components/pages/about/Team";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await fetchPageSeo("/about/team");
-  return buildMetadata(seo);
+  return buildMetadata(seo, undefined, "/about/team");
 }
 
 export default async function Page() {

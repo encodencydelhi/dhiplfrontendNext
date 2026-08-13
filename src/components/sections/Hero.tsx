@@ -7,7 +7,8 @@ import { ArrowRight } from "lucide-react";
 import { Sparkles } from "lucide-react";
 import { ChevronLeft } from "lucide-react";
 import { ChevronRight } from "lucide-react";
-import { api, API_URL } from "@/lib/api";
+import { api, API_URL, API_IS_LOCAL } from "@/lib/api";
+import Image from "next/image";
 
 const HERO_CACHE_KEY = 'dh_hero_slides_cache';
 const HERO_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
@@ -186,16 +187,17 @@ const Hero = ({ isHomePage = true, initialSlides = [] }: { isHomePage?: boolean;
               transition={{ duration: 1.2, ease: "easeOut" }}
             >
               {heroSlides[current]?.image ? (
-                <img
+                <Image
                   src={`${API_URL}${heroSlides[current].image}`}
                   alt={heroSlides[current]?.altText || heroSlides[current]?.title || "Hero Image"}
-                  width={1920}
-                  height={1080}
+                  fill
                   sizes="(max-width:768px) 100vw, 1920px"
+                  priority={current === 0}
                   loading={current === 0 ? "eager" : "lazy"}
                   fetchPriority={current === 0 ? "high" : "auto"}
                   decoding="async"
                   className="w-full h-full object-cover"
+                  unoptimized={API_IS_LOCAL}
                 />
               ) : (
                 <div className="w-full h-full bg-slate-900 animate-pulse flex items-center justify-center">

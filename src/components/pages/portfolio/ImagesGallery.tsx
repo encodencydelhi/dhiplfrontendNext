@@ -8,7 +8,8 @@ import { useParams, useRouter } from "next/navigation";
 import Topbar from "@/components/layout/Topbar";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/sections/Footer";
-import { api, API_URL } from "@/lib/api";
+import { api, API_URL, API_IS_LOCAL } from "@/lib/api";
+import Image from "next/image";
 
 interface ImageItem {
   id: number;
@@ -160,14 +161,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50 z-10" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30 z-10" />
 
-          <img
+<Image
             src={displayHeroImage}
             alt={title}
-            width="1920"
-            height="400"
-            className="w-full h-full object-cover"
-            loading="eager"
+            fill
+            priority
             fetchPriority="high"
+            sizes="100vw"
+            className="object-cover"
+            unoptimized={API_IS_LOCAL}
           />
         </m.div>
 
@@ -454,10 +456,14 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
             animate={{ scale: 1, opacity: 1 }}
             className="relative max-w-full max-h-full overflow-hidden"
           >
-            <img
+            <Image
               src={selectedImage}
               alt="Full View"
+              width={1600}
+              height={1200}
               className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-sm border-2 border-white/10"
+              loading="lazy"
+              unoptimized={API_IS_LOCAL}
             />
             <button
               className="absolute -top-12 right-0 text-white flex items-center gap-2 hover:text-[#DE802B] transition-colors"

@@ -2,7 +2,8 @@
 
 import { m, useScroll, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { api, API_URL } from "@/lib/api";
+import { api, API_URL, API_IS_LOCAL } from "@/lib/api";
+import Image from "next/image";
 
 interface HeroData {
     pageName: string;
@@ -102,10 +103,13 @@ const DynamicHero = ({
             <m.div style={{ y, scale }} className="absolute inset-0 z-0">
                 <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50 z-10" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30 z-10" />
-                <img
+                <Image priority fetchPriority="high" decoding="async"
                     src={bgImage}
                     alt={data?.imageAltText || fallbackAltText || displayTitle}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="100vw"
+                    className="object-cover"
+                    unoptimized={API_IS_LOCAL}
                 />
             </m.div>
 

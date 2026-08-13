@@ -2,6 +2,8 @@
 
 import { m } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
+import Image from "next/image";
+import { API_IS_LOCAL } from "@/lib/api";
 
 const WhyDesignHouse = () => {
   const reasons = [
@@ -52,12 +54,15 @@ const WhyDesignHouse = () => {
             </p>
 
             {/* Image with Stats */}
-            <div className="relative rounded-xl overflow-hidden shadow-lg">
-              <img
+            <div className="relative rounded-xl overflow-hidden shadow-lg h-72">
+              <Image
                 src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80"
                 alt="Why Choose Design House"
-                className="w-full h-72 object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
                 loading="lazy"
+                unoptimized={API_IS_LOCAL}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">

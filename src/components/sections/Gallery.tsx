@@ -3,6 +3,8 @@
 import { useRef, useState, lazy, Suspense } from 'react';
 import { m, useInView, AnimatePresence } from "framer-motion";
 import { X, ZoomIn } from 'lucide-react';
+import Image from "next/image";
+import { API_IS_LOCAL } from "@/lib/api";
 const MotionSection = lazy(() => import('../MotionSection'));
 
 const galleryImages = [
@@ -118,7 +120,7 @@ const Gallery = () => {
         tabIndex={0}
       >
         <div className="absolute inset-0 group-hover:scale-110 transition-transform duration-700">
-          <img src={item.image} alt={item.title} className="w-full h-full object-cover" loading="lazy" />
+          <Image src={item.image} alt={item.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" loading="lazy" unoptimized={API_IS_LOCAL} />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/30" />
         </div>
 
@@ -221,10 +223,14 @@ const Gallery = () => {
               className="relative max-w-6xl max-h-[90vh] w-full"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
+              <Image
                 src={selectedImage.image}
                 alt={selectedImage.title}
+                width={1600}
+                height={1200}
                 className="w-full max-h-[85vh] object-contain rounded-xl shadow-2xl mx-auto"
+                loading="lazy"
+                unoptimized={API_IS_LOCAL}
               />
 
               {/* Image Info Overlay */}

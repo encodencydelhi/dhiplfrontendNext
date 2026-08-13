@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Users, Sparkles, Clock, Award, Target, Globe, ChevronRight, CheckCircle } from "lucide-react";
-import { api, API_URL } from "@/lib/api";
+import { api, API_URL, API_IS_LOCAL } from "@/lib/api";
+import Image from "next/image";
 import { cleanDescription } from "@/lib/utils";
 
 const BestInteriorCompany = () => {
@@ -232,12 +233,15 @@ const BestInteriorCompany = () => {
           {/* Right Content - Image Gallery & Stats */}
           <div className="space-y-8">
             {/* Interior Design Image */}
-            <div className="relative overflow-hidden group">
-              <img
+            <div className="relative overflow-hidden group h-[400px]">
+              <Image
                 src={data.image ? `${API_URL}${data.image.startsWith('/') ? '' : '/'}${data.image}` : "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80&auto=format&fit=crop"}
                 alt={data.imageAltText || "Premium Interior Design"}
-                className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-700"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
                 loading="lazy"
+                unoptimized={API_IS_LOCAL}
               />
 
               {/* Image Overlay */}

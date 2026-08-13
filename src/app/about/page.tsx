@@ -4,7 +4,7 @@ import AboutView from "@/components/pages/About";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await fetchPageSeo("/about");
-  return buildMetadata(seo);
+  return buildMetadata(seo, undefined, "/about");
 }
 
 export default async function Page() {

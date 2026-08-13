@@ -5,8 +5,9 @@ import PageLayout from "@/components/layout/PageLayout";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { api, API_URL } from "@/lib/api";
+import { api, API_URL, API_IS_LOCAL } from "@/lib/api";
 import { cleanDescription } from "@/lib/utils";
+import Image from "next/image";
 
 interface GalleryItem {
   _id: string;
@@ -121,12 +122,15 @@ const Portfolio = () => {
                       transition={{ delay: idx * 0.1 }}
                     >
                       <Link href={`/portfolio/${categorySlug}`} className="block group">
-                        <div className="rounded-xl overflow-hidden mb-4 bg-gray-100">
+                        <div className="rounded-xl overflow-hidden mb-4 bg-gray-100 relative aspect-square">
                           {firstItem ? (
-                            <img
+                            <Image fill
                               src={`${API_URL}${firstItem.mainImage.startsWith('/') ? '' : '/'}${firstItem.mainImage}`}
                               alt={firstItem.mainImageAltText || cat.name}
-                              className="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-700"
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                              className="object-cover group-hover:scale-110 transition-transform duration-700"
+                              loading="lazy"
+                              unoptimized={API_IS_LOCAL}
                             />
                           ) : (
                             <div className="w-full aspect-square flex items-center justify-center text-gray-400">
@@ -178,12 +182,15 @@ const Portfolio = () => {
                     transition={{ delay: idx * 0.1 }}
                   >
                     <Link href={`/portfolio/${category}/${subSlug}`}>
-                      <div className="rounded-xl overflow-hidden mb-4 bg-gray-100">
+                      <div className="rounded-xl overflow-hidden mb-4 bg-gray-100 relative aspect-[4/3]">
                         {firstItem ? (
-                          <img
+                          <Image fill
                             src={`${API_URL}${firstItem.mainImage.startsWith('/') ? '' : '/'}${firstItem.mainImage}`}
                             alt={firstItem.mainImageAltText || sub.name}
-                            className="w-full aspect-[4/3] object-cover group-hover:scale-110 transition-transform duration-700"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            className="object-cover group-hover:scale-110 transition-transform duration-700"
+                            loading="lazy"
+                            unoptimized={API_IS_LOCAL}
                           />
                         ) : (
                           <div className="w-full aspect-[4/3] flex items-center justify-center text-gray-400">
@@ -232,11 +239,14 @@ const Portfolio = () => {
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
                 >
-                  <div className="rounded-xl overflow-hidden mb-4 bg-gray-100 relative">
-                    <img
+                  <div className="rounded-xl overflow-hidden mb-4 bg-gray-100 relative aspect-[4/3]">
+                    <Image fill
                       src={`${API_URL}${item.mainImage.startsWith('/') ? '' : '/'}${item.mainImage}`}
                       alt={item.mainImageAltText || item.title}
-                      className="w-full aspect-[4/3] object-cover group-hover:scale-110 transition-transform duration-700"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover group-hover:scale-110 transition-transform duration-700"
+                      loading="lazy"
+                      unoptimized={API_IS_LOCAL}
                     />
                     {item.number && (
                       <div className="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded-full text-sm font-bold">

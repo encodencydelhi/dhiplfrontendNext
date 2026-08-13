@@ -3,7 +3,8 @@
 import { m, AnimatePresence } from "framer-motion";
 import { HelpCircle, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
-import { api, API_URL } from "@/lib/api";
+import { api, API_URL, API_IS_LOCAL } from "@/lib/api";
+import Image from "next/image";
 
 const FaqSection = () => {
   const [data, setData] = useState<any>(null);
@@ -187,10 +188,14 @@ const FaqSection = () => {
                 transition={{ duration: 0.6, ease: "easeOut" }}
                 className="absolute inset-0"
               >
-                <img
+                <Image
                   src={currentFaq?.image?.startsWith('http') ? currentFaq.image : `${API_URL}${currentFaq.image}`}
                   alt={currentFaq?.altText || 'FAQ Image'}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
+                  loading="lazy"
+                  unoptimized={API_IS_LOCAL}
                 />
               </m.div>
             </AnimatePresence>
@@ -203,12 +208,16 @@ const FaqSection = () => {
                 key={displayIndex}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-xl overflow-hidden shadow-lg border-2 border-white aspect-video"
+                className="relative rounded-xl overflow-hidden shadow-lg border-2 border-white aspect-video"
               >
-                <img
+                <Image
                   src={currentFaq?.image?.startsWith('http') ? currentFaq.image : `${API_URL}${currentFaq.image}`}
                   alt={currentFaq?.altText || 'FAQ Image'}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
+                  loading="lazy"
+                  unoptimized={API_IS_LOCAL}
                 />
               </m.div>
             </AnimatePresence>

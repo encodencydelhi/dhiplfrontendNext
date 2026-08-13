@@ -4,7 +4,7 @@ import CareerView from "@/components/pages/Career";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await fetchPageSeo("/career");
-  return buildMetadata(seo);
+  return buildMetadata(seo, undefined, "/career");
 }
 
 export default async function Page() {

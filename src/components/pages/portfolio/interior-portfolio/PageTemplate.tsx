@@ -9,7 +9,8 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/sections/Footer";
 import Location from "@/components/sections/Location";
 import useServiceDetail from "@/hooks/useServiceDetail";
-import { API_URL } from "@/lib/api";
+import { API_URL, API_IS_LOCAL } from "@/lib/api";
+import Image from "next/image";
 import { useSeo } from "@/context/SeoContext";
 import { cleanDescription } from "@/lib/utils";
 
@@ -66,7 +67,7 @@ const PageTemplate: React.FC<PageTemplateProps> = ({
   const [isBannerLoading, setIsBannerLoading] = useState(false);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
   const [isGalleryLoading, setIsGalleryLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string } | null>(null);
 
   const ref = useRef(null);
 
@@ -212,10 +213,13 @@ const PageTemplate: React.FC<PageTemplateProps> = ({
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50 z-10" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30 z-10" />
 
-          <img
+          <Image priority fetchPriority="high" loading="eager" decoding="async"
             src={heroImage}
             alt={heroAlt}
-            className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
+            className="object-cover"
+            unoptimized={API_IS_LOCAL}
           />
         </m.div>
 
@@ -448,7 +452,12 @@ const PageTemplate: React.FC<PageTemplateProps> = ({
                     transition={{ duration: 1, delay: (index % 12) * 0.05, ease: [0.42, 0, 0.58, 1] }}
                     onMouseEnter={() => setHoveredCard(index)}
                     onMouseLeave={() => setHoveredCard(null)}
-                    onClick={() => setSelectedImage(`${API_URL}${img.url}`)}
+                    onClick={() =>
+                      setSelectedImage({
+                        src: `${API_URL}${img.url}`,
+                        alt: img.altText || img.galleryTitle || portfolioTitle,
+                      })
+                    }
                     className="group relative cursor-pointer overflow-hidden bg-white rounded-sm shadow-sm hover:shadow-xl transition-all duration-500"
                   >
                     <div className="relative aspect-[4/3] overflow-hidden">
@@ -506,7 +515,16 @@ const PageTemplate: React.FC<PageTemplateProps> = ({
           onClick={() => setSelectedImage(null)}
         >
           <m.div className="relative max-w-full max-h-full">
-            <img src={selectedImage} className="max-w-full max-h-[90vh] object-contain shadow-2xl rounded-sm" />
+<Image
+              loading="lazy"
+              decoding="async"
+              src={selectedImage.src}
+              alt={selectedImage.alt}
+              width={1600}
+              height={1200}
+              className="max-w-full max-h-[90vh] object-contain shadow-2xl rounded-sm"
+              unoptimized={API_IS_LOCAL}
+            />
             <button className="absolute top-4 right-4 text-white bg-white/10 p-2 rounded-full hover:bg-white/20 transition-all">
                 <X size={24} />
             </button>
@@ -562,10 +580,14 @@ const PageTemplate: React.FC<PageTemplateProps> = ({
                   transition={{ delay: idx * 0.1 }}
                   className="relative group aspect-[4/5] overflow-hidden"
                 >
-                  <img
+                  <Image
                     src={img.url}
                     alt={img.title}
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                    loading="lazy"
+                    unoptimized={API_IS_LOCAL}
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
                     <p className="text-xs uppercase tracking-widest font-bold text-white border-b border-secondary pb-2">{img.title}</p>

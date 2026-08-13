@@ -2,6 +2,8 @@
 
 import { m } from "framer-motion";
 import { Handshake, Award, TrendingUp, ArrowRight, ShieldCheck } from "lucide-react";
+import Image from "next/image";
+import { API_IS_LOCAL } from "@/lib/api";
 
 const OurAssociates = () => {
   const highlights = [
@@ -189,11 +191,14 @@ const OurAssociates = () => {
               
               {/* Image */}
               <div className="relative h-64 md:h-72 overflow-hidden bg-gray-100">
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=1400&q=80&auto=format&fit=crop"
                   alt="Associates"
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
                   loading="lazy"
+                  unoptimized={API_IS_LOCAL}
                 />
 
                 {/* overlay */}

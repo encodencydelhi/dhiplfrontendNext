@@ -3,6 +3,8 @@
 import { m } from "framer-motion";
 import PageLayout from "@/components/layout/PageLayout";
 import { CheckCircle, Target, Eye, Award } from "lucide-react";
+import Image from "next/image";
+import { API_IS_LOCAL } from "@/lib/api";
 
 const BrandApproach = () => {
   return (
@@ -60,11 +62,15 @@ const BrandApproach = () => {
               transition={{ duration: 0.8 }}
               className="relative"
             >
-              <div className="aspect-[4/5] rounded-2xl overflow-hidden">
-                <img 
+              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden">
+                <Image
                   src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069"
                   alt="Brand Design Process"
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 40vw"
+                  className="object-cover"
+                  loading="lazy"
+                  unoptimized={API_IS_LOCAL}
                 />
               </div>
               <div className="absolute -bottom-8 -left-8 bg-primary text-white p-6 rounded-xl">

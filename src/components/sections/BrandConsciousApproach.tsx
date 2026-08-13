@@ -2,6 +2,8 @@
 
 import { m } from "framer-motion";
 import { Sparkles, Target, Palette, Zap } from "lucide-react";
+import Image from "next/image";
+import { API_IS_LOCAL } from "@/lib/api";
 
 const BrandConsciousApproach = () => {
   const approaches = [
@@ -100,12 +102,15 @@ const BrandConsciousApproach = () => {
             transition={{ duration: 0.8 }}
             className="relative"
           >
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-              <img
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl aspect-[4/5]">
+              <Image
                 src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80"
                 alt="Brand Conscious Design"
-                className="w-full aspect-[4/5] object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 40vw"
+                className="object-cover"
                 loading="lazy"
+                unoptimized={API_IS_LOCAL}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               <div className="absolute bottom-8 left-8 right-8">

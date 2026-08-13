@@ -4,7 +4,7 @@ import BlogsView from "@/components/pages/Blogs";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await fetchPageSeo("/blogs");
-  return buildMetadata(seo);
+  return buildMetadata(seo, undefined, "/blogs");
 }
 
 export default async function Page() {

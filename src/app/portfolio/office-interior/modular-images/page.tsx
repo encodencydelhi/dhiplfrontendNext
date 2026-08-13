@@ -1,19 +1,25 @@
 import type { Metadata } from "next";
-import { fetchServiceDetail, buildServiceMetadata, serviceDetailSeo, AdvancedSeoTags } from "@/lib/seo";
+import { fetchPageSeo, buildMetadata, mergePageSeo, fetchServiceDetail, AdvancedSeoTags } from "@/lib/seo";
 import ModularWorkView from "@/components/pages/portfolio/office-interior/ModularWork";
 
 // PageTemplate fetches useServiceDetail(category) — the SEO lookup key is the
 // category, not the more specific subCategory.
 export async function generateMetadata(): Promise<Metadata> {
-  const data = await fetchServiceDetail("Office Interior");
-  return buildServiceMetadata(data);
+  const [pageSeo, data] = await Promise.all([
+    fetchPageSeo("/portfolio/office-interior/modular-images"),
+    fetchServiceDetail("Office Interior"),
+  ]);
+  return buildMetadata(mergePageSeo(pageSeo, data), undefined, "/portfolio/office-interior/modular-images");
 }
 
 export default async function Page() {
-  const data = await fetchServiceDetail("Office Interior");
+  const [pageSeo, data] = await Promise.all([
+    fetchPageSeo("/portfolio/office-interior/modular-images"),
+    fetchServiceDetail("Office Interior"),
+  ]);
   return (
     <>
-      <AdvancedSeoTags seo={serviceDetailSeo(data)} />
+      <AdvancedSeoTags seo={mergePageSeo(pageSeo, data)} />
       <ModularWorkView />
     </>
   );

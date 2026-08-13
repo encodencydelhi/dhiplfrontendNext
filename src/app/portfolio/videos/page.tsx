@@ -4,7 +4,7 @@ import VideoView from "@/components/pages/portfolio/videos/Video";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await fetchPageSeo("/portfolio/videos");
-  return buildMetadata(seo);
+  return buildMetadata(seo, undefined, "/portfolio/videos");
 }
 
 export default async function Page() {

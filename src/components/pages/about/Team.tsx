@@ -3,6 +3,8 @@
 import { m } from "framer-motion";
 import PageLayout from "@/components/layout/PageLayout";
 import { Linkedin, Mail } from "lucide-react";
+import Image from "next/image";
+import { API_IS_LOCAL } from "@/lib/api";
 
 const teamMembers = [
   {
@@ -72,11 +74,15 @@ const Team = () => {
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
               >
-                <div className="relative overflow-hidden rounded-xl mb-4">
-                  <img 
-                    src={member.image} 
+                <div className="relative overflow-hidden rounded-xl mb-4 aspect-[3/4]">
+                  <Image
+                    src={member.image}
                     alt={member.name}
-                    className="w-full aspect-[3/4] object-cover group-hover:scale-110 transition-transform duration-700"
+                    fill
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    loading="lazy"
+                    unoptimized={API_IS_LOCAL}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="absolute bottom-4 left-4 right-4 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

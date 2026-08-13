@@ -9,7 +9,8 @@ import Topbar from "@/components/layout/Topbar";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/sections/Footer";
 import DynamicHero from "@/components/layout/DynamicHero";
-import { api, API_URL } from "@/lib/api";
+import { api, API_URL, API_IS_LOCAL } from "@/lib/api";
+import Image from "next/image";
 
 const Blogs = () => {
   const ref = useRef(null);
@@ -153,10 +154,13 @@ const Blogs = () => {
                     <Link href={`/blogs/${blog.slug}`} className="block">
                       {/* Image Container */}
                       <div className="relative overflow-hidden aspect-[16/9]">
-                        <img
+                        <Image fill
                           src={`${API_URL}${blog.image.startsWith('/') ? '' : '/'}${blog.image}`}
                           alt={blog.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover group-hover:scale-110 transition-transform duration-700"
+                          loading="lazy"
+                          unoptimized={API_IS_LOCAL}
                         />
 
                         <div className="absolute top-4 left-4">

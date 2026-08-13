@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { m } from "framer-motion";
 import { ArrowRight, MapPin, Calendar, Award, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import { API_IS_LOCAL } from "@/lib/api";
 
 const projects = [
   {
@@ -216,11 +218,14 @@ const Projects = () => {
               <div className="relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-500 h-full border border-gray-200">
                 {/* Image Container */}
                 <div className="relative h-72 overflow-hidden">
-                  <img
+                  <Image
                     src={project.image}
                     alt={project.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
                     loading="lazy"
+                    unoptimized={API_IS_LOCAL}
                   />
                   
                   {/* Overlay Gradient */}

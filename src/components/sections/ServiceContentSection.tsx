@@ -5,6 +5,8 @@ import useServiceDetail from "@/hooks/useServiceDetail";
 import { useSeo } from "@/context/SeoContext";
 import { useEffect } from "react";
 import { cleanDescription } from "@/lib/utils";
+import Image from "next/image";
+import { API_IS_LOCAL } from "@/lib/api";
 
 interface Props {
     serviceName: string;
@@ -73,13 +75,16 @@ const ServiceContentSection = ({
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ duration: 1, delay: (100 + index * 100) / 1000, ease: [0.42, 0, 0.58, 1] }}
-                                    className="overflow-hidden border-2 border-gray-200 hover:border-[#134698] transition-all duration-300 group"
+                                    className="relative overflow-hidden border-2 border-gray-200 hover:border-[#134698] transition-all duration-300 group aspect-square"
                                 >
-                                    <img
+                                    <Image
                                         src={img.url}
                                         alt={img.title}
-                                        className="w-full aspect-square object-cover transition-transform duration-700 group-hover:scale-110"
+                                        fill
+                                        sizes="(max-width: 768px) 100vw, 50vw"
+                                        className="object-cover transition-transform duration-700 group-hover:scale-110"
                                         loading="lazy"
+                                        unoptimized={API_IS_LOCAL}
                                     />
                                 </m.div>
                             ))}

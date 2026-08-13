@@ -4,7 +4,7 @@ import ContactView from "@/components/pages/Contact";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await fetchPageSeo("/contact");
-  return buildMetadata(seo);
+  return buildMetadata(seo, undefined, "/contact");
 }
 
 export default async function Page() {

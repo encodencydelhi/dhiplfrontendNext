@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { m } from "framer-motion";
 import { Linkedin, Mail, ArrowRight } from "lucide-react";
-import { api, API_URL } from "@/lib/api";
+import { api, API_URL, API_IS_LOCAL } from "@/lib/api";
+import Image from "next/image";
 
 const OurTeam = () => {
   const [data, setData] = useState<any>(null);
@@ -150,11 +151,14 @@ const OurTeam = () => {
             >
               {/* Image Card - Full Color */}
               <div className="relative aspect-[4/5] overflow-hidden transition-all duration-700 ease-in-out bg-gray-200 rounded-lg shadow-md hover:shadow-xl">
-                <img
+                <Image
                   src={member.image.startsWith('http') ? member.image : `${API_URL}${member.image.startsWith('/') ? '' : '/'}${member.image}`}
                   alt={member.altText || member.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
+                  unoptimized={API_IS_LOCAL}
                 />
 
                 {/* Social Overlay on Hover */}

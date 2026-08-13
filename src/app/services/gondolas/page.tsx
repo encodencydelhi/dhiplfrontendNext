@@ -1,17 +1,23 @@
 import type { Metadata } from "next";
-import { fetchServiceDetail, buildServiceMetadata, serviceDetailSeo, AdvancedSeoTags } from "@/lib/seo";
+import { fetchServiceDetail, fetchPageSeo, buildMetadata, mergePageSeo, AdvancedSeoTags } from "@/lib/seo";
 import GondolasView from "@/components/pages/services/Gondolas";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const data = await fetchServiceDetail("Gondolas");
-  return buildServiceMetadata(data);
+  const [pageSeo, data] = await Promise.all([
+    fetchPageSeo("/services/gondolas"),
+    fetchServiceDetail("Gondolas"),
+  ]);
+  return buildMetadata(mergePageSeo(pageSeo, data), undefined, "/services/gondolas");
 }
 
 export default async function Page() {
-  const data = await fetchServiceDetail("Gondolas");
+  const [pageSeo, data] = await Promise.all([
+    fetchPageSeo("/services/gondolas"),
+    fetchServiceDetail("Gondolas"),
+  ]);
   return (
     <>
-      <AdvancedSeoTags seo={serviceDetailSeo(data)} />
+      <AdvancedSeoTags seo={mergePageSeo(pageSeo, data)} />
       <GondolasView />
     </>
   );
