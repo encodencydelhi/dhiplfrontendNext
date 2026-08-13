@@ -78,7 +78,8 @@ const BlogDetail = () => {
         setError(null);
 
         // 1. Fetch main blog content first (Critical)
-        const blogResponse = await api.get(`/api/blogs/slug/${id}`);
+        const normalizedId = String(id).trim().toLowerCase().replace(/\s+/g, "-");
+        const blogResponse = await api.get(`/api/blogs/slug/${normalizedId}`);
         if (blogResponse.data.success) {
           const blogData = blogResponse.data.data;
           setPost(blogData);
@@ -88,7 +89,7 @@ const BlogDetail = () => {
           // We don't want the whole page to fail if these fail
           try {
             const [relatedRes, latestRes] = await Promise.allSettled([
-              api.get(`/api/blogs/slug/${id}/related?limit=3`),
+              api.get(`/api/blogs/slug/${normalizedId}/related?limit=3`),
               api.get(`/api/blogs/published?limit=6`)
             ]);
 

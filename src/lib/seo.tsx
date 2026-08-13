@@ -31,6 +31,25 @@ const decodeAndStripHtml = (str?: string) => {
   return decoded.replace(/<\/?[^>]+(>|$)/g, "").trim();
 };
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.designhouse.co.in";
+
+/**
+ * Sanitizes the CMS's canonicalTag field before it goes into <head>.
+ * - Strips stray HTML (contentEditable editor may leave markup behind)
+ * - Rejects obvious junk (e.g. "[object Object]" from the old admin bug)
+ * - Upgrades relative paths ("/about") to absolute site URLs
+ * - Rejects values that are not a clean URL (spaces, uppercase paths, etc.)
+ */
+export function normalizeCanonical(raw?: string): string | undefined {
+  const cleaned = decodeAndStripHtml(raw);
+  if (!cleaned || cleaned === "[object Object]" || cleaned.includes("[object")) return undefined;
+  if (cleaned.includes(" ") || /[A-Z]/.test(cleaned.split("/")[1] || "")) return undefined;
+
+  if (/^https?:\/\//i.test(cleaned)) return cleaned;
+  if (cleaned.startsWith("/")) return `${SITE_URL}${cleaned}`;
+  return undefined;
+}
+
 /**
  * The CMS's rich-text editor wraps every line in <div>/<p> and HTML-encodes
  * angle brackets, so a pasted <script>/<meta> tag arrives as e.g.
@@ -127,7 +146,7 @@ export function buildMetadata(seo: SeoData | null, fallbackTitle = "Design House
   const metaTitle = decodeAndStripHtml(seo.metaTitle) || seo.title || fallbackTitle;
   const metaDescription = decodeAndStripHtml(seo.metaDescription);
   const metaKeywords = decodeAndStripHtml(seo.metaKeywords || seo.metaKeyword);
-  const canonical = (seo.canonicalTag || "").trim();
+  const canonical = normalizeCanonical(seo.canonicalTag);
   const ogImageRaw = seo.ogImage || seo.bgImage || seo.mainImage?.url;
   const ogImage = ogImageRaw
     ? ogImageRaw.startsWith("http")

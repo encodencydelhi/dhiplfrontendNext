@@ -35,7 +35,7 @@ const Location: React.FC<LocationProps> = ({ category }) => {
                     {filteredLocations.map((loc, index) => (
                         <Link
                             key={loc._id || index}
-                            href={`/${loc.permalink}`}
+                            href={`/${String(loc.permalink).toLowerCase().replace(/\s+/g, "-")}`}
                             className="group px-3 py-1.5 border border-gray-300 text-xs text-gray-700 hover:bg-[#DE802B] hover:text-white transition-all duration-300 font-medium shadow-md hover:shadow-lg"
                         >
                             <span className="relative">

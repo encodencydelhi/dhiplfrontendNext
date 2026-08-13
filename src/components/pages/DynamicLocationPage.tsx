@@ -25,7 +25,8 @@ const DynamicLocationPage = () => {
         const fetchPageData = async () => {
             try {
                 setIsLoading(true);
-                const response = await api.get(`/api/custom-pages/slug/${slug}`);
+                const normalizedSlug = String(slug).trim().toLowerCase().replace(/\s+/g, "-");
+                const response = await api.get(`/api/custom-pages/slug/${normalizedSlug}`);
                 if (response.data.success) {
                     setPageData(response.data.data);
                 } else {

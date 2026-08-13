@@ -63,7 +63,8 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
 
       try {
         setLoading(true);
-        const response = await api.get(`/api/portfolio-gallery/${slug}`);
+        const normalizedSlug = String(slug).trim().toLowerCase().replace(/\s+/g, "-");
+        const response = await api.get(`/api/portfolio-gallery/${normalizedSlug}`);
 
         if (response.data.success) {
           const galleryData = response.data.data;
