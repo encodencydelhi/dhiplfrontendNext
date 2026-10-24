@@ -415,7 +415,7 @@ const Footer = () => {
       </div>
 
       {/* ================= BOTTOM BAR ================= */}
-      <div className="border-t border-white/10">
+      <div className="bg-black border-t border-white/10">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:pl-11 lg:pr-8 py-2 flex flex-col md:flex-row items-center justify-between gap-2 text-xs text-white">
           <p className="text-center md:text-left">© {new Date().getFullYear()} Design House India Pvt. Ltd. All rights reserved.</p>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
