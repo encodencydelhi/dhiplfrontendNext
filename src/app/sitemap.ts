@@ -5,6 +5,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.designhouse.co
 
 const STATIC_ROUTES: string[] = [
   "/",
+  "/privacy-policy",
+  "/terms-and-conditions",
   "/about",
   "/about/brand-approach",
   "/about/infrastructure",

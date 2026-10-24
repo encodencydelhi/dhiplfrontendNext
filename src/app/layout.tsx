@@ -40,7 +40,9 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${inter.className} ${playfair.variable}`}>
-      <body>
+      {/* Browser extensions (e.g. ColorZilla's cz-shortcut-listen) inject
+          attributes on <body> before hydration; ignore those mismatches. */}
+      <body suppressHydrationWarning>
         {/* Preload cached hero image BEFORE React hydrates. The image is
             served by the backend API, not this frontend, so the URL must be
             built from API_URL — window.location.origin was this page's own

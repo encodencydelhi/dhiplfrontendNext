@@ -1,10 +1,9 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
-import Hero from "@/components/sections/Hero";
+import HomeHero from "@/components/sections/HomeHero";
 import About from "@/components/sections/About";
 import { fetchPageSeo, buildMetadata, AdvancedSeoTags } from "@/lib/seo";
-import { fetchActiveHeroSlides } from "@/lib/api";
 
 const Topbar = dynamic(() => import("@/components/layout/Topbar"));
 const Navbar = dynamic(() => import("@/components/layout/Navbar"));
@@ -29,7 +28,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Index() {
-  const initialSlides = await fetchActiveHeroSlides();
   const seo = await fetchPageSeo("/");
 
   return (
@@ -40,11 +38,11 @@ export default async function Index() {
       </Suspense>
 
       <Suspense fallback={null}>
-        <Navbar />
+        <Navbar lightHero />
       </Suspense>
 
       <main>
-        <Hero isHomePage={true} initialSlides={initialSlides} />
+        <HomeHero />
         <About />
 
         <Suspense fallback={<SectionPlaceholder />}><ServicesCarousel /></Suspense>
