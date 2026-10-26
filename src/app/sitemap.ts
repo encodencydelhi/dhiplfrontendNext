@@ -7,6 +7,7 @@ const STATIC_ROUTES: string[] = [
   "/",
   "/privacy-policy",
   "/terms-and-conditions",
+  "/disclaimer",
   "/about",
   "/about/brand-approach",
   "/about/infrastructure",
