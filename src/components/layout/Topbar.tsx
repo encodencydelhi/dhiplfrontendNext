@@ -1,6 +1,6 @@
 "use client";
 
-import { Phone, Mail, ShieldCheck, type LucideIcon } from "lucide-react";
+import { Phone, Mail, type LucideIcon } from "lucide-react";
 import Image from "next/image";
 import { useSettings } from "@/hooks/useSettings";
 
@@ -50,7 +50,7 @@ const Topbar = () => {
           <ContactLink href={`mailto:${topbarEmail}`} icon={Mail} label="Email us" text={topbarEmail} />
         </div>
 
-        {/* Ensis + Login */}
+        {/* Ensis */}
         <div className="flex items-center gap-2 sm:gap-3">
           <a
             href="https://ensis.in/"
@@ -71,16 +71,6 @@ const Topbar = () => {
             <span className="absolute top-[calc(100%+10px)] right-0 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 px-2.5 py-1.5 bg-[#0a1a33] text-white text-[10px] font-bold tracking-wider uppercase rounded-md shadow-2xl opacity-0 translate-y-2 scale-90 group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none whitespace-nowrap z-[100] ring-1 ring-white/15">
               Panchkarma Solution
             </span>
-          </a>
-
-          <a
-            href="https://admin.designhouse.co.in/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-1.5 h-8 px-3 sm:px-3.5 rounded-full text-[10px] font-bold tracking-[0.16em] uppercase text-white ring-1 ring-white/30 bg-white/[0.06] hover:bg-white hover:text-[#134698] hover:ring-white transition-all duration-300"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 transition-transform group-hover:scale-110" />
-            <span>Login</span>
           </a>
         </div>
       </div>

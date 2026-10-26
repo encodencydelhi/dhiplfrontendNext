@@ -1,88 +1,102 @@
 import type { Metadata } from "next";
+import {
+  CalendarDays,
+  FileText,
+  IndianRupee,
+  Link2,
+  Mail,
+  Monitor,
+  RefreshCcw,
+  Settings,
+  ShieldCheck,
+  User,
+  Users,
+  FileBadge,
+} from "lucide-react";
 
-import LegalPage, { COMPANY, type LegalSection } from "@/components/pages/LegalPage";
+import LegalLayout, { COMPANY, type LegalSection } from "@/components/pages/LegalLayout";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions | Design House India",
-  description: `Terms and conditions for using the ${COMPANY.name} website.`,
+  description: `Terms and conditions for using the ${COMPANY.name} website and services.`,
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.designhouse.co.in"}/terms-and-conditions` },
 };
 
-// Draft content — to be reviewed by Design House before going live
 const SECTIONS: LegalSection[] = [
   {
+    icon: FileText,
     heading: "Acceptance of Terms",
-    body: [
-      `By accessing or using this website, you agree to these Terms & Conditions. If you do not agree, please do not use the website. The website is operated by ${COMPANY.name}.`,
-    ],
+    body: "By accessing or using our website (www.designhouse.co.in) or engaging our services, you agree to be bound by these Terms & Conditions. If you do not agree, please do not use our website or services.",
   },
   {
-    heading: "Use of the Website",
-    body: [
-      "You agree to use this website only for lawful purposes. You must not:",
-      [
-        "Use the website in any way that could damage, disable or impair it.",
-        "Attempt to gain unauthorised access to any part of the website or its systems.",
-        "Submit false, misleading or harmful information through our forms.",
-      ],
-    ],
+    icon: User,
+    heading: "About Us",
+    body: `${COMPANY.name} provides turnkey interior design, retail display, merchandising and exhibition solutions. The information on this website is for general information and showcase purposes only and does not constitute a binding offer.`,
   },
   {
+    icon: Settings,
+    heading: "Use of Website",
+    body: "You agree to use this website only for lawful purposes and in a manner that does not infringe the rights of, restrict or inhibit anyone else's use and enjoyment of the website. Unauthorized use, data mining, or any activity that disrupts the website is prohibited.",
+  },
+  {
+    icon: Monitor,
+    heading: "Services & Enquiries",
+    body: "Enquiries submitted through our website are non-binding and do not automatically create a contract. Project scope, specifications, pricing, timelines and all commercial terms will be confirmed in a separate written agreement.",
+  },
+  {
+    icon: FileBadge,
     heading: "Intellectual Property",
-    body: [
-      `All content on this website, including text, images, project photographs, designs, logos and graphics, is the property of ${COMPANY.name} or its licensors. It may not be copied, reproduced or used without our prior written permission.`,
-    ],
+    body: `All content on this website, including text, images, designs, layouts, graphics, logos and project photographs, is the property of ${COMPANY.name} or its respective owners. Unauthorized use, reproduction or distribution is strictly prohibited.`,
   },
   {
-    heading: "Project Information and Quotations",
-    body: [
-      "Project images, descriptions and information on this website are for general reference only. Any quotation, timeline or scope of work is binding only when confirmed in a written agreement between you and Design House.",
-    ],
+    icon: Users,
+    heading: "Client Responsibilities",
+    body: "Clients are responsible for providing accurate information, approvals, and timely feedback required for project execution. Any delays due to incomplete information or late approvals may impact project timelines and costs.",
   },
   {
-    heading: "Careers and Eligibility Check",
-    body: [
-      "The match score shown by the CV eligibility check is an automated indication based on your CV and the job requirements. It is not a hiring decision or an offer of employment. All applications are reviewed by our HR team.",
-    ],
+    icon: IndianRupee,
+    heading: "Quotes, Pricing & Payments",
+    body: "All quotations are valid for a limited period as specified. Prices are exclusive of applicable taxes unless stated otherwise. Payment terms, milestones and other commercial conditions will be as per the project agreement.",
   },
   {
-    heading: "Third-Party Links",
-    body: [
-      "Our website may contain links to third-party websites. We are not responsible for the content, policies or practices of those websites.",
-    ],
+    icon: CalendarDays,
+    heading: "Project Execution",
+    body: "Project timelines are estimates and may vary due to factors beyond our control, such as site conditions, approvals, material availability or changes requested by the client. We will make reasonable efforts to meet agreed timelines.",
   },
   {
+    icon: ShieldCheck,
     heading: "Limitation of Liability",
-    body: [
-      "While we make every effort to keep the information on this website accurate and up to date, we do not guarantee its completeness or accuracy. Design House shall not be liable for any loss or damage arising from the use of this website.",
-    ],
+    body: `To the maximum extent permitted by law, ${COMPANY.name} shall not be liable for any direct, indirect, incidental or consequential damages arising from the use of this website or our services.`,
   },
   {
-    heading: "Changes to These Terms",
-    body: [
-      "We may update these Terms & Conditions from time to time. Continued use of the website after changes are posted means you accept the updated terms.",
-    ],
+    icon: Link2,
+    heading: "Third-Party Links",
+    body: "Our website may contain links to third-party websites for your convenience. We do not endorse or take responsibility for their content, accuracy or practices.",
   },
   {
-    heading: "Governing Law",
-    body: ["These Terms & Conditions are governed by the laws of India."],
+    icon: RefreshCcw,
+    heading: "Changes to Terms",
+    body: "We may update these Terms & Conditions from time to time without prior notice. The updated version will be posted on this page with the revised effective date.",
   },
   {
+    icon: Mail,
     heading: "Contact Us",
-    body: [
-      `For any questions about these Terms & Conditions, please contact ${COMPANY.name}:`,
-      [`Email: ${COMPANY.email}`, `Address: ${COMPANY.address}`],
-    ],
+    body: `If you have any questions regarding these Terms & Conditions, please contact us at ${COMPANY.email} or call ${COMPANY.phones[0]}.`,
   },
 ];
 
 export default function Page() {
   return (
-    <LegalPage
-      title="Terms &"
-      highlight="Conditions"
-      intro={`These Terms & Conditions govern your use of the ${COMPANY.name} website. Please read them carefully.`}
-      updated="October 2026"
+    <LegalLayout
+      title="Terms & Conditions"
+      intro="These terms and conditions govern your use of our website and our services. Please read them carefully."
       sections={SECTIONS}
+      numbered
+      effectiveNote="These Terms & Conditions are effective from the date mentioned above and supersede all previous versions."
+      teamEyebrow="HAVE A QUESTION?"
+      teamText="We're here to help with your project requirements."
+      cardTitle={["From Concept to", "Lasting Impressions"]}
+      cardText="We design and build spaces that inspire brands, engage people and deliver results."
     />
   );
 }

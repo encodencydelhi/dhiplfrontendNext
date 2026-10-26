@@ -53,7 +53,7 @@ export default async function Index() {
         <Suspense fallback={<SectionPlaceholder />}><FaqSection /></Suspense>
         <Suspense fallback={<SectionPlaceholder />}><RecentArticles /></Suspense>
         <Suspense fallback={<SectionPlaceholder />}><Location category="Interior Design Company" /></Suspense>
-        <Suspense fallback={<SectionPlaceholder />}><Footer /></Suspense>
+        <Suspense fallback={<SectionPlaceholder />}><Footer showCta /></Suspense>
       </main>
     </div>
   );

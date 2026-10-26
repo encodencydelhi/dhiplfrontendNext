@@ -98,7 +98,10 @@ const LOGO_SPARKLES = [
   { x: "14%", y: "92%", size: 7, delay: "1.9s" },
 ];
 
-const FALLBACK_PHONES = ["+91 98102 47319", "+91 93106 08427"];
+// Numbers in the Call Us Today box (fixed here, not taken from Settings → Phones)
+const CALL_PHONES = ["+91 93106 08427", "+91 98102 47319"];
+// The arrow in the Call Us Today box dials this number
+const ARROW_PHONE = "+919810247319";
 const FALLBACK_EMAIL = "info@designhouse.co.in";
 // Office addresses, one array entry per printed line (as in the design)
 const OFFICES = [
@@ -138,53 +141,55 @@ const Heading = ({ children }: { children: React.ReactNode }) => (
 
 /* ─── Footer ─── */
 
-const Footer = () => {
+// showCta: the "Let's Build Together" band above the footer (only the home page shows it)
+const Footer = ({ showCta = false }: { showCta?: boolean }) => {
   const { settings } = useSettings();
 
-  const phones = settings?.phones?.length ? settings.phones.map(p => p.phone) : FALLBACK_PHONES;
   const email = settings?.emails?.find(e => e.forContact)?.email || settings?.emails?.[0]?.email || FALLBACK_EMAIL;
 
   return (
     <footer className="bg-[#01182a] text-white font-sans overflow-x-hidden">
       {/* ================= CTA BANNER ================= */}
-      <section className="relative overflow-hidden bg-[#0B2E7A]">
-        {/* Banner artwork: blue streaks with the office reception on the right */}
-        {/* Phones show the plain blue side of the artwork (darkened) so the text stays readable */}
-        {/* The artwork is much wider than the band is tall, so it is cropped; 30% from the top keeps
-            the logo on the reception wall in view (the band grows with the width, as the artwork does) */}
-        <Image src={bandImg} alt="" fill placeholder="blur" sizes="100vw" className="object-cover object-left lg:object-[100%_37%]" />
-        <div className="absolute inset-0 bg-[#0B2557]/60 lg:hidden" aria-hidden="true" />
+      {showCta && (
+        <section className="relative overflow-hidden bg-[#0B2E7A]">
+          {/* Banner artwork: blue streaks with the office reception on the right */}
+          {/* Phones show the plain blue side of the artwork (darkened) so the text stays readable */}
+          {/* The artwork is much wider than the band is tall, so it is cropped; 30% from the top keeps
+              the logo on the reception wall in view (the band grows with the width, as the artwork does) */}
+          <Image src={bandImg} alt="" fill placeholder="blur" sizes="100vw" className="object-cover object-left lg:object-[100%_37%]" />
+          <div className="absolute inset-0 bg-[#0B2557]/60 lg:hidden" aria-hidden="true" />
 
-        {/* lg+: everything stays left of the reception photo (the right ~30% of the artwork) */}
-        <div className="relative max-w-[1520px] mx-auto px-4 sm:px-6 lg:pl-10 lg:pr-[30%] pt-5 pb-4 lg:py-2 lg:min-h-[5.3vw] flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-5 xl:gap-6">
-          <div className="flex-shrink-0">
-            <p className="flex items-center gap-3 text-[11px] sm:text-xs tracking-[0.12em] uppercase text-white/85 mb-1">
-              Let&apos;s Build Together
-              <span className="w-16 h-px bg-white/50" />
+          {/* lg+: everything stays left of the reception photo (the right ~30% of the artwork) */}
+          <div className="relative max-w-[1520px] mx-auto px-4 sm:px-6 lg:pl-10 lg:pr-[30%] pt-5 pb-4 lg:py-2 lg:min-h-[5.3vw] flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-5 xl:gap-6">
+            <div className="flex-shrink-0">
+              <p className="flex items-center gap-3 text-[11px] sm:text-xs tracking-[0.12em] uppercase text-white/85 mb-1">
+                Let&apos;s Build Together
+                <span className="w-16 h-px bg-white/50" />
+              </p>
+              {/* One line from xl, as in the design; two on narrower screens */}
+              <h2 className="font-bold leading-tight text-[22px] sm:text-[24px] lg:text-[22px] xl:text-[clamp(19px,1.5vw,25px)] xl:whitespace-nowrap">
+                Transforming Spaces.
+                <br className="xl:hidden" />
+                <span className="text-[#3B9BFF]"> Delivering Impact.</span>
+              </h2>
+            </div>
+            {/* Divider between the heading and the text */}
+            <span className="hidden lg:block w-px h-12 bg-white/40 flex-shrink-0" />
+            <p className="text-white/90 text-[13px] lg:text-[12px] 2xl:text-[13px] leading-snug lg:whitespace-nowrap">
+              From retail environments to corporate spaces,
+              <br className="hidden lg:block" /> we create functional, brand-driven and inspiring
+              <br className="hidden lg:block" /> interiors across India.
             </p>
-            {/* One line from xl, as in the design; two on narrower screens */}
-            <h2 className="font-bold leading-tight text-[22px] sm:text-[24px] lg:text-[22px] xl:text-[clamp(19px,1.5vw,25px)] xl:whitespace-nowrap">
-              Transforming Spaces.
-              <br className="xl:hidden" />
-              <span className="text-[#3B9BFF]"> Delivering Impact.</span>
-            </h2>
+            <Link
+              href="/contact"
+              className="self-start lg:self-center flex-shrink-0 inline-flex items-center gap-2 bg-white text-[#134698] hover:bg-[#DE802B] hover:text-white font-bold text-[11px] uppercase tracking-wide px-3.5 py-2 rounded-md shadow-lg transition-colors"
+            >
+              Get Free Consultation
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
-          {/* Divider between the heading and the text */}
-          <span className="hidden lg:block w-px h-12 bg-white/40 flex-shrink-0" />
-          <p className="text-white/90 text-[13px] lg:text-[12px] 2xl:text-[13px] leading-snug lg:whitespace-nowrap">
-            From retail environments to corporate spaces,
-            <br className="hidden lg:block" /> we create functional, brand-driven and inspiring
-            <br className="hidden lg:block" /> interiors across India.
-          </p>
-          <Link
-            href="/contact"
-            className="self-start lg:self-center flex-shrink-0 inline-flex items-center gap-2 bg-white text-[#134698] hover:bg-[#DE802B] hover:text-white font-bold text-[11px] uppercase tracking-wide px-3.5 py-2 rounded-md shadow-lg transition-colors"
-          >
-            Get Free Consultation
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ================= MAIN FOOTER ================= */}
       <div className="relative">
@@ -269,7 +274,7 @@ const Footer = () => {
               </span>
               <div className="leading-tight">
                 <p className="text-[11px] font-medium text-[#F7B84B] mb-0.5">Call Us Today</p>
-                {phones.map(p => (
+                {CALL_PHONES.map(p => (
                   <a
                     key={p}
                     href={`tel:${p.replace(/[^0-9+]/g, "")}`}
@@ -279,9 +284,9 @@ const Footer = () => {
                   </a>
                 ))}
               </div>
-              <Link href="/contact" aria-label="Contact us" className="ml-0.5 text-white hover:text-[#F7B84B] transition-colors">
+              <a href={`tel:${ARROW_PHONE}`} aria-label="Call +91 98102 47319" className="ml-0.5 text-white hover:text-[#F7B84B] transition-colors">
                 <ArrowRight className="w-4 h-4 2xl:w-[18px] 2xl:h-[18px]" />
-              </Link>
+              </a>
             </div>
           </div>
 
@@ -422,6 +427,7 @@ const Footer = () => {
             <Link href="/disclaimer" className="hover:text-[#3B9BFF] transition-colors">
               Disclaimer
             </Link>
+            <span className="text-white/30">|</span>
             <span className="inline-flex items-center gap-2">
               Designed &amp; Developed by
               <a href="https://encodency.com" target="_blank" rel="noopener noreferrer" aria-label="Encodency Pvt. Ltd.">

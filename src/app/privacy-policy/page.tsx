@@ -1,90 +1,79 @@
 import type { Metadata } from "next";
+import { CalendarCheck, Cookie, ExternalLink, FileText, RefreshCcw, Settings, Share2, ShieldCheck, User, UserCog } from "lucide-react";
 
-import LegalPage, { COMPANY, type LegalSection } from "@/components/pages/LegalPage";
+import LegalLayout, { COMPANY, type LegalSection } from "@/components/pages/LegalLayout";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Design House India",
   description: `How ${COMPANY.name} collects, uses and protects your personal information.`,
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.designhouse.co.in"}/privacy-policy` },
 };
 
-// Draft content — to be reviewed by Design House before going live
 const SECTIONS: LegalSection[] = [
   {
+    icon: FileText,
+    heading: "Introduction",
+    body: `${COMPANY.name} is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose and safeguard your information when you visit our website www.designhouse.co.in or interact with us online or offline.`,
+  },
+  {
+    icon: User,
     heading: "Information We Collect",
-    body: [
-      "We collect information that you choose to share with us when you use our website, including:",
-      [
-        "Contact details such as your name, email address, phone number and company name when you submit an enquiry, book a consultation or contact us.",
-        "Application details such as your CV, qualifications and work experience when you apply for a position through our Careers section.",
-        "Basic technical information such as your browser type, device and pages visited, collected through cookies and similar technologies.",
-      ],
-    ],
+    body: "We may collect personal information such as your name, phone number, email address, company name, project requirements and location when you fill out enquiry forms, contact us, or subscribe to our updates. We also collect non-personal information such as browser type, device information, pages visited and cookies to improve your experience.",
   },
   {
+    icon: Settings,
     heading: "How We Use Your Information",
-    body: [
-      [
-        "To respond to your enquiries and provide the services you request.",
-        "To schedule consultations, share quotations and keep you updated on your project.",
-        "To review job applications and contact shortlisted candidates.",
-        "To improve our website, services and user experience.",
-        "To meet legal and regulatory obligations.",
-      ],
-    ],
+    body: "We use your information to respond to enquiries, provide services, share relevant updates, improve our website and understand your requirements. We do not use your information for any purpose other than those stated in this policy without your consent.",
   },
   {
-    heading: "CV Eligibility Check",
-    body: [
-      "When you use the eligibility check on our Careers pages, your CV is read and analysed within your own browser to show a match score. It is not uploaded to our servers as part of this check. Your CV is only shared with us if you choose to submit an application.",
-    ],
-  },
-  {
+    icon: Share2,
     heading: "Sharing of Information",
-    body: [
-      "We do not sell or rent your personal information. We may share it only with trusted service providers who help us operate our website and business (for example, hosting or email providers), under confidentiality obligations, or where required by law.",
-    ],
+    body: "We do not sell, trade or rent your personal information to third parties. We may share your information with trusted service providers who assist us in website operations, communication, marketing or project execution, under strict confidentiality obligations, or when required by law.",
   },
   {
+    icon: ShieldCheck,
+    heading: "Data Security",
+    body: "We implement reasonable security measures to protect your personal information from unauthorised access, alteration, disclosure or destruction. However, no method of transmission over the internet is 100% secure, and we cannot guarantee absolute security.",
+  },
+  {
+    icon: Cookie,
     heading: "Cookies",
-    body: [
-      "Our website uses cookies to remember your preferences and understand how visitors use the site. You can disable cookies in your browser settings, although some parts of the website may not work as intended.",
-    ],
+    body: "Our website uses cookies to enhance your browsing experience, analyse website traffic and understand user preferences. You can choose to disable cookies through your browser settings, although this may affect certain website functionalities.",
   },
   {
-    heading: "Data Security and Retention",
-    body: [
-      "We use reasonable technical and organisational measures to protect your information against unauthorised access, loss or misuse. We keep personal information only for as long as needed for the purposes described in this policy or as required by law.",
-    ],
+    icon: ExternalLink,
+    heading: "Third-Party Links",
+    body: "Our website may contain links to third-party websites for your convenience. We are not responsible for the privacy practices or content of such external websites. We encourage you to review their privacy policies.",
   },
   {
+    icon: UserCog,
     heading: "Your Rights",
-    body: [
-      "You may request access to, correction of, or deletion of the personal information we hold about you, or withdraw your consent to communications at any time, by contacting us using the details below.",
-    ],
+    body: "You may request access, correction or deletion of your personal information by contacting us at the details provided below. We will respond to your request in a reasonable timeframe, subject to legal obligations.",
   },
   {
-    heading: "Changes to This Policy",
-    body: [
-      "We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated date.",
-    ],
+    icon: RefreshCcw,
+    heading: "Changes to This Privacy Policy",
+    body: "We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. The updated policy will be posted on this page with the revised effective date.",
   },
   {
+    icon: CalendarCheck,
     heading: "Contact Us",
-    body: [
-      `If you have any questions about this Privacy Policy, please contact ${COMPANY.name}:`,
-      [`Email: ${COMPANY.email}`, `Address: ${COMPANY.address}`],
-    ],
+    body: `If you have any questions, concerns or requests regarding this Privacy Policy, please contact us at ${COMPANY.email} or call ${COMPANY.phones[0]}.`,
   },
 ];
 
 export default function Page() {
   return (
-    <LegalPage
-      title="Privacy"
-      highlight="Policy"
-      intro={`This Privacy Policy explains how ${COMPANY.name} collects, uses and protects the information you share with us through this website.`}
-      updated="October 2026"
+    <LegalLayout
+      title="Privacy Policy"
+      intro="Your privacy is important to us. This policy explains how we collect, use and protect your information."
       sections={SECTIONS}
+      numbered
+      effectiveNote="This Privacy Policy is effective from the date mentioned above and supersedes all previous versions."
+      teamEyebrow="HAVE A QUESTION?"
+      teamText="We're here to help with your project requirements."
+      cardTitle={["Transforming Spaces", "Creating Experiences"]}
+      cardText="From concept to completion, we deliver spaces that inspire."
     />
   );
 }
