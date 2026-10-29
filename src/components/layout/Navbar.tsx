@@ -1,11 +1,31 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { api, API_URL, API_IS_LOCAL } from "@/lib/api";
-import { ChevronDown, X, Building2, ShieldCheck } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { api, API_URL } from "@/lib/api";
+import { getHeroToneSampler, subscribeHeroTone, type Tone } from "@/lib/heroTone";
+import {
+  Armchair,
+  BookOpen,
+  BriefcaseBusiness,
+  Building2,
+  ChevronDown,
+  ChevronRight,
+  FileDown,
+  FileText,
+  LayoutGrid,
+  MonitorSmartphone,
+  Newspaper,
+  Presentation,
+  ShieldCheck,
+  Signpost,
+  Sparkles,
+  Video,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
-import { useSettings } from "@/hooks/useSettings";
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -170,16 +190,50 @@ const navItems = [
    was adding real hydration cost. Mobile menu below still uses framer-motion
    since it's genuinely mount/unmount (hamburger-triggered), not always-on. */
 
+// Icon for a dropdown group, picked from its label
+const GROUP_ICONS: [RegExp, LucideIcon][] = [
+  [/video/i, Video],
+  [/brouch|brochure/i, BookOpen],
+  [/newsletter/i, Newspaper],
+  [/company profile/i, FileText],
+  [/merchandis/i, LayoutGrid],
+  [/kiosk|booth/i, MonitorSmartphone],
+  [/signage/i, Signpost],
+  [/exhibition|event/i, Presentation],
+  [/office/i, BriefcaseBusiness],
+  [/furniture|wardrobe|sofa/i, Armchair],
+  [/interior/i, Building2],
+];
+const groupIcon = (label: string) => GROUP_ICONS.find(([re]) => re.test(label))?.[1] ?? Sparkles;
+
+// A top-level item is "current" when the page is it, or one of its dropdown links
+const isActiveItem = (item, pathname: string) => {
+  if (!pathname) return false;
+  if (item.href) return item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+  const hrefs = (item.dropdown || []).flatMap((d) => [d.href, ...(d.subItems || []).map((s) => s.href)]).filter(Boolean);
+  return hrefs.some((h) => !h.endsWith(".pdf") && (pathname === h || pathname.startsWith(h + "/")));
+};
+
 /* ─── Navbar ─── */
 
-const Navbar = () => {
+// `solid` keeps the light (scrolled) styling from the start — for pages whose
+// hero is light, where the transparent white-text navbar would be unreadable.
+// `lightHero` is for a light hero image with dark patches (the home banner): the
+// bar stays transparent and each link is dark or white depending on what is behind it.
+const Navbar = ({ solid = false, lightHero = false }: { solid?: boolean; lightHero?: boolean } = {}) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const isLight = isScrolled || solid;
+  const overHero = lightHero && !isLight;
+  // Tone of the hero behind each link / the logo / Login ("dark" → white text)
+  const toneRefs = useRef<Record<string, HTMLElement | null>>({});
+  const [tones, setTones] = useState<Record<string, Tone>>({});
+  const toneOf = (key: string): Tone => (isLight ? "light" : overHero ? tones[key] ?? "light" : "dark");
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [activeSubDropdown, setActiveSubDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileExpandedItems, setMobileExpandedItems] = useState({});
   const [companyProfilePdfs, setCompanyProfilePdfs] = useState([]);
-  const { settings } = useSettings();
+  const pathname = usePathname();
 
   useEffect(() => {
     const fetchPdfs = async () => {
@@ -210,6 +264,49 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (!lightHero) return;
+    let frame = 0;
+    const measure = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const sample = getHeroToneSampler();
+        if (!sample) return;
+        const next: Record<string, Tone> = {};
+        for (const [key, el] of Object.entries(toneRefs.current)) {
+          if (!el) continue;
+          // Sample across the whole label; white text once a good part of it sits on dark
+          const r = el.getBoundingClientRect();
+          let dark = 0;
+          let seen = 0;
+          for (let k = 0; k < 5; k++) {
+            const tone = sample(r.left + (r.width * (k + 0.5)) / 5, r.top + r.height / 2, key);
+            if (!tone) continue;
+            seen++;
+            if (tone === "dark") dark++;
+          }
+          if (seen) next[key] = dark / seen >= 0.4 ? "dark" : "light";
+        }
+        setTones((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
+      });
+    };
+    measure();
+    const unsubscribe = subscribeHeroTone(measure);
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, { passive: true });
+    // Links shift when the web font or the PDF list arrives, so re-measure on any size change
+    const ro = new ResizeObserver(measure);
+    Object.values(toneRefs.current).forEach((el) => el && ro.observe(el));
+    document.fonts?.ready.then(measure);
+    return () => {
+      cancelAnimationFrame(frame);
+      ro.disconnect();
+      unsubscribe();
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure);
+    };
+  }, [lightHero]);
+
   const toggleMobileItem = (label) => {
     setMobileExpandedItems((prev) => ({ ...prev, [label]: !prev[label] }));
   };
@@ -225,7 +322,7 @@ const Navbar = () => {
               href: `${API_URL}/${pdf.pdfUrl}`,
               isPdf: true,
             }));
-            
+
             return {
               ...sub,
               subItems: dynamicSubItems.length > 0 ? dynamicSubItems : sub.subItems,
@@ -243,197 +340,218 @@ const Navbar = () => {
       {/* ─── Navbar ─── */}
       <m.nav
         className={`fixed left-0 right-0 z-40 transition-all duration-500 ease-in-out ${isScrolled
-          ? "top-0 bg-white backdrop-blur-lg shadow-[0_4px_32px_0_rgba(19,70,152,0.13),0_1.5px_0_0_rgba(19,70,152,0.08)]"
-          : "top-[48px] bg-transparent backdrop-blur-none shadow-none"
+          ? "top-0 bg-white/95 backdrop-blur-xl shadow-[0_10px_30px_-12px_rgba(19,70,152,0.25)]"
+          : solid
+            ? "top-[48px] bg-white shadow-none"
+            : overHero
+              ? "top-[48px] bg-transparent shadow-none"
+              : // Over a photo hero: a soft dark fade keeps the white links readable
+              "top-[48px] bg-gradient-to-b from-black/45 via-black/15 to-transparent backdrop-blur-none shadow-none"
           }`}
-        style={{ fontFamily: "'Inter', sans-serif", borderBottom: isScrolled ? "1.5px solid rgba(19,70,152,0.09)" : "none" }}
+        style={{ fontFamily: "'Inter', sans-serif", borderBottom: isLight ? "1.5px solid rgba(19,70,152,0.09)" : "none" }}
       >
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-[56px] sm:h-[72px] flex justify-between lg:grid lg:grid-cols-[auto_1fr_auto] items-center">
 
-          {/* Logo — this grid slot (lg:grid-cols-[auto_1fr_auto]) is always
-              rendered even before settings load, so the nav-links and
-              right-actions columns don't reflow once the logo pops in. */}
-          <a href="/" className="flex items-center z-10 h-[42px] sm:h-[62px] min-w-[135px] sm:min-w-[200px]">
-            {settings?.logo && (
-              <m.div
-                whileHover={{ scale: 1.04 }}
-                transition={{ duration: 0.2 }}
-                className={`transition-all duration-500 rounded-xl px-2 py-0.5 sm:px-3 sm:py-1 ${isScrolled
-                    ? "bg-white/90 backdrop-blur-sm shadow-sm"
-                    : "bg-white shadow-[0_0_40px_rgba(255,255,255,0.8),0_0_15px_rgba(255,255,255,0.5)] border border-white/40 mb-1"
-                  }`}
+          {/* Logo (public/logobg.png, which has its own white background) */}
+          <a href="/" ref={(el) => { toneRefs.current.__logo = el; }} className="flex items-center z-10 h-[42px] sm:h-[62px] min-w-[135px] sm:min-w-[200px]">
+            <m.div
+              whileHover={{ scale: 1.04 }}
+              transition={{ duration: 0.2 }}
+              // On the white (scrolled / solid) navbar the logo sits on it directly, no box;
+              // over a photo hero it keeps its white card so it stays readable.
+              className={`transition-all duration-500 rounded-xl px-2 py-0.5 sm:px-3 sm:py-1 ${toneOf("__logo") === "light"
+                  ? "bg-transparent shadow-none"
+                  : "bg-white shadow-[0_0_40px_rgba(255,255,255,0.8),0_0_15px_rgba(255,255,255,0.5)] border border-white/40 mb-1"
+                }`}
+            >
+              {/* logobg.png has wide white margins (the logo is the middle 534×306 of 606×412);
+                  this box has the logo's own shape and the image is scaled to crop the margins,
+                  so the logo is bigger without making the navbar taller. */}
+              {/* Over the home hero (before scrolling) the logo grows down into the hero;
+                  scaled from its top-left so the navbar itself keeps its height. */}
+              <div
+                className={`relative overflow-hidden h-[44px] sm:h-[60px] aspect-[534/306] origin-top-left transition-transform duration-500 ${
+                  overHero ? "scale-[1.3] sm:scale-[1.5]" : ""
+                }`}
               >
                 <Image
-                  src={`${API_URL}${settings.logo.startsWith('/') ? '' : '/'}${settings.logo}`}
-                  alt="Design House"
-                  width={200}
-                  height={62}
-                  style={{ width: "auto" }}
-                  className="h-[42px] sm:h-[62px]"
+                  src="/logobg.png"
+                  alt="Design House India Pvt. Ltd."
+                  fill
+                  sizes="110px"
+                  className="object-cover scale-[1.1]"
                   priority
-                  unoptimized={API_IS_LOCAL}
                 />
-              </m.div>
-            )}
+              </div>
+            </m.div>
           </a>
 
           {/* ─── Desktop Nav ─── */}
-          <div className="hidden lg:flex justify-center items-center gap-7 whitespace-nowrap h-full">
-            {dynamicNavItems.map((item) => (
-              <div
-                key={item.label}
-                className="relative h-full flex items-center"
-                onMouseEnter={() => setActiveDropdown(item.label)}
-                onMouseLeave={() => { setActiveDropdown(null); setActiveSubDropdown(null); }}
-              >
-                {/* ── Single link (no dropdown) ── */}
-                {item.href && !item.dropdown ? (
-                  <a
-                    href={item.href}
-                    className={`inline-flex items-center text-[11.5px] uppercase tracking-[0.1em] font-semibold transition-all duration-300 relative group leading-none ${isScrolled ? "text-neutral-700 hover:text-[#134698]" : "text-white hover:text-white/80"}`}
-                  >
-                    {item.label}
-                    <span className="absolute -bottom-0.5 left-0 w-0 h-[1.5px] transition-all duration-300 group-hover:w-full bg-gradient-to-r from-[#134698] to-[#DE802B]" />
-                  </a>
-                ) : (
-                  /* ── Dropdown trigger ── */
-                  <button
-                    className={`inline-flex items-center gap-1 text-[11.5px] uppercase tracking-[0.1em] font-semibold transition-all duration-300 relative group leading-none bg-transparent border-0 p-0 m-0 cursor-pointer ${isScrolled ? "text-neutral-700 hover:text-[#134698]" : "text-white hover:text-white/80"}`}
-                    style={{ verticalAlign: "middle" }}
-                    aria-label={`Toggle ${item.label} menu`}
-                    aria-expanded={activeDropdown === item.label}
-                  >
-                    <span className="leading-none">{item.label}</span>
-                    {item.dropdown && (
-                      <span
-                        className="inline-flex items-center leading-none transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                        style={{ lineHeight: 0, transform: activeDropdown === item.label ? "rotate(180deg)" : "rotate(0deg)" }}
-                      >
-                        <ChevronDown className="w-3.5 h-3.5" />
-                      </span>
-                    )}
-                    <span className="absolute -bottom-0.5 left-0 w-0 h-[1.5px] transition-all duration-300 group-hover:w-full bg-gradient-to-r from-[#134698] to-[#DE802B]" />
-                  </button>
-                )}
+          <div className="hidden lg:flex justify-center items-center gap-1 whitespace-nowrap h-full">
+            {dynamicNavItems.map((item) => {
+              const open = activeDropdown === item.label;
+              const active = isActiveItem(item, pathname);
+              const onLight = toneOf(item.label) === "light";
+              const setRef = (el: HTMLElement | null) => { toneRefs.current[item.label] = el; };
+              // Pill-style link: soft background on hover/open, underline under the current page
+              const linkClass = `relative inline-flex items-center gap-1 px-3.5 py-2 rounded-full text-[11.5px] uppercase tracking-[0.12em] font-semibold leading-none transition-colors duration-300 ${
+                onLight
+                  ? `${active || open ? "text-[#134698]" : "text-neutral-800"} hover:text-[#134698] ${open ? "bg-[#134698]/[0.07]" : "hover:bg-[#134698]/[0.06]"}`
+                  : `text-white ${open ? "bg-white/15" : "hover:bg-white/10"} ${overHero ? "[text-shadow:0_1px_8px_rgba(0,0,0,0.45)]" : ""}`
+              }`;
+              const dot = active && (
+                <span
+                  className={`absolute left-3.5 right-3.5 bottom-0.5 h-[2px] rounded-full transition-colors duration-300 ${onLight ? "bg-[#134698]" : "bg-white"}`}
+                  aria-hidden="true"
+                />
+              );
 
-                {/* ─── Level 1 Dropdown ───
-                    Always rendered (visibility toggled via a CSS transition, not
-                    JS mount/unmount or framer-motion) so every link exists in the
-                    server-rendered HTML for crawlers/SEO tools, not just after a
-                    mouse hover — and so hydrating ~68 always-mounted links doesn't
-                    cost a framer-motion instance each (this was a real chunk of
-                    the site's Total Blocking Time). */}
-                {item.dropdown && (
-                  <div
-                    className={`absolute top-full pt-5 ${item.alignRight ? "right-0" : "left-0"} transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${activeDropdown === item.label
-                      ? "opacity-100 translate-y-0 scale-100 blur-none"
-                      : "opacity-0 -translate-y-2 scale-[0.97] blur-sm pointer-events-none"
+              return (
+                <div
+                  key={item.label}
+                  className="relative h-full flex items-center"
+                  onMouseEnter={() => setActiveDropdown(item.label)}
+                  onMouseLeave={() => { setActiveDropdown(null); setActiveSubDropdown(null); }}
+                >
+                  {item.href && !item.dropdown ? (
+                    <a href={item.href} ref={setRef} className={linkClass} aria-current={active ? "page" : undefined}>
+                      {item.label}
+                      {dot}
+                    </a>
+                  ) : (
+                    <button ref={setRef} className={`${linkClass} bg-transparent border-0 cursor-pointer`} aria-label={`Toggle ${item.label} menu`} aria-expanded={open}>
+                      <span className="leading-none">{item.label}</span>
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+                      {dot}
+                    </button>
+                  )}
+
+                  {/* ─── Level 1 Dropdown ───
+                      Always rendered (visibility toggled via a CSS transition, not
+                      JS mount/unmount or framer-motion) so every link exists in the
+                      server-rendered HTML for crawlers/SEO tools, not just after a
+                      mouse hover — and so hydrating ~68 always-mounted links doesn't
+                      cost a framer-motion instance each. */}
+                  {item.dropdown && (
+                    <div
+                      className={`absolute top-full pt-2 ${item.alignRight ? "right-0" : "left-0"} transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        open ? "opacity-100 translate-y-0 visible" : "opacity-0 translate-y-2 invisible pointer-events-none"
                       }`}
-                    style={{ zIndex: 9999 }}
-                  >
-                    {/* Arrow tip */}
-                    <div
-                      className={`absolute top-3 w-3 h-3 bg-white rotate-45 border-t border-l border-[#134698]/10 ${item.alignRight ? "right-6" : "left-6"}`}
-                      style={{ zIndex: 10000 }}
-                    />
-
-                    <div
-                      className="bg-white rounded-2xl py-3 min-w-[240px]"
-                      style={{
-                        boxShadow: "0 8px 40px 0 rgba(19,70,152,0.14), 0 2px 8px 0 rgba(19,70,152,0.08), 0 0 0 1px rgba(19,70,152,0.07)",
-                      }}
+                      style={{ zIndex: 9999 }}
                     >
-                      {/* Top accent line */}
-                      <div className="h-[2px] mx-4 mb-3 rounded-full bg-gradient-to-r from-[#134698] via-[#DE802B] to-transparent opacity-60" />
+                      <div
+                        className="relative bg-white rounded-2xl p-2 min-w-[290px] border border-[#134698]/10"
+                        style={{ boxShadow: "0 24px 56px -16px rgba(19,70,152,0.35), 0 6px 18px -6px rgba(19,70,152,0.12)" }}
+                      >
+                        {/* Heading strip */}
+                        <div className="flex items-center justify-between px-3 pt-2 pb-2.5 mb-1 border-b border-[#134698]/[0.08]">
+                          <span className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-[#DE802B]">{item.label}</span>
+                          <span className="h-[2px] w-10 rounded-full bg-gradient-to-r from-[#134698] to-[#DE802B]" />
+                        </div>
 
-                      {item.dropdown.map((subItem, idx) => (
-                        <div
-                          key={idx}
-                          className="relative"
-                          onMouseEnter={() => subItem.subItems && setActiveSubDropdown(subItem.label)}
-                          onMouseLeave={() => setActiveSubDropdown(null)}
-                        >
-                          {subItem.href ? (
-                            <a
-                              href={subItem.href}
-                              className="flex items-center justify-between px-5 py-2.5 text-[13px] font-medium text-neutral-600 hover:text-[#134698] hover:bg-[#134698]/[0.04] transition-all duration-200 group mx-1 rounded-lg"
-                            >
-                              <span className="relative">
-                                {subItem.label}
-                                <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-[#DE802B] transition-all duration-300 group-hover:w-full" />
-                              </span>
-                              {subItem.subItems && (
-                                <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-[#DE802B] opacity-70" />
-                              )}
-                            </a>
-                          ) : (
-                            <button
-                              className="flex items-center justify-between px-5 py-2.5 text-[13px] font-medium text-neutral-600 hover:text-[#134698] hover:bg-[#134698]/[0.04] transition-all duration-200 group w-full mx-1 rounded-lg text-left"
-                              aria-label={`Toggle ${subItem.label} submenu`}
-                              aria-expanded={activeSubDropdown === subItem.label}
-                            >
-                              <span className="relative">
-                                {subItem.label}
-                                <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-[#DE802B] transition-all duration-300 group-hover:w-full" />
-                              </span>
-                              {subItem.subItems && (
-                                <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-[#DE802B] opacity-70" />
-                              )}
-                            </button>
-                          )}
-
-                          {/* ─── Level 2 Sub-Dropdown ─── */}
-                          {subItem.subItems && (
-                            <div
-                              className={`absolute left-full top-0 ml-2 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${activeSubDropdown === subItem.label
-                                ? "opacity-100 translate-x-0 scale-100 blur-none"
-                                : "opacity-0 -translate-x-2.5 scale-[0.96] blur-sm pointer-events-none"
+                        {item.dropdown.map((subItem, idx) => {
+                          const Icon = groupIcon(subItem.label);
+                          const subOpen = activeSubDropdown === subItem.label;
+                          const count = subItem.subItems?.length;
+                          const row = (
+                            <>
+                              <span
+                                className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors duration-200 ${
+                                  subOpen ? "bg-[#134698] text-white" : "bg-[#134698]/[0.06] text-[#134698] group-hover/row:bg-[#134698] group-hover/row:text-white"
                                 }`}
-                              style={{ zIndex: 99999 }}
-                              onMouseEnter={() => setActiveSubDropdown(subItem.label)}
+                              >
+                                <Icon className="w-[17px] h-[17px]" />
+                              </span>
+                              <span className="flex-1 min-w-0">
+                                <span className={`block text-[13.5px] font-semibold transition-colors ${subOpen ? "text-[#134698]" : "text-neutral-800 group-hover/row:text-[#134698]"}`}>
+                                  {subItem.label}
+                                </span>
+                                {count ? (
+                                  <span className="block text-[11px] text-neutral-400 mt-0.5">
+                                    {count} {subItem.subItems.some((s) => s.isPdf) ? (count === 1 ? "file" : "files") : count === 1 ? "page" : "pages"}
+                                  </span>
+                                ) : null}
+                              </span>
+                              {/* Arrow only where a sub-menu opens; direct links show it on hover */}
+                              <ChevronRight
+                                className={`w-4 h-4 flex-shrink-0 transition-all duration-200 ${
+                                  subOpen
+                                    ? "text-[#DE802B] translate-x-0.5"
+                                    : count
+                                      ? "text-neutral-300 group-hover/row:text-[#DE802B] group-hover/row:translate-x-0.5"
+                                      : "text-[#DE802B] opacity-0 -translate-x-1 group-hover/row:opacity-100 group-hover/row:translate-x-0"
+                                }`}
+                              />
+                            </>
+                          );
+                          const rowClass = `group/row w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors duration-200 ${
+                            subOpen ? "bg-[#F4F7FC]" : "hover:bg-[#F4F7FC]"
+                          }`;
+
+                          return (
+                            <div
+                              key={idx}
+                              className="relative"
+                              onMouseEnter={() => setActiveSubDropdown(subItem.subItems ? subItem.label : null)}
                               onMouseLeave={() => setActiveSubDropdown(null)}
                             >
-                              {/* Arrow tip */}
-                              <div
-                                className="absolute left-[-5px] top-4 w-2.5 h-2.5 bg-[#134698] rotate-45"
-                                style={{ zIndex: 100000 }}
-                              />
+                              {subItem.href ? (
+                                <a href={subItem.href} className={rowClass}>{row}</a>
+                              ) : (
+                                <button className={rowClass} aria-label={`Toggle ${subItem.label} submenu`} aria-expanded={subOpen}>
+                                  {row}
+                                </button>
+                              )}
 
-                              <div
-                                className="rounded-2xl py-2.5 min-w-[210px]"
-                                style={{
-                                  background: "linear-gradient(145deg, #1a56b8 0%, #134698 60%, #0e3578 100%)",
-                                  boxShadow: "0 12px 48px 0 rgba(19,70,152,0.30), 0 4px 16px 0 rgba(19,70,152,0.20), inset 0 1px 0 rgba(255,255,255,0.12)",
-                                }}
-                              >
-                                <div className="h-[1px] mx-3 mb-2 rounded-full bg-gradient-to-r from-white/20 via-white/40 to-transparent" />
-
-                                {subItem.subItems.map((subsub, subIdx) => (
-                                  <a
-                                    key={subIdx}
-                                    href={subsub.href}
-                                    target={subsub.isPdf ? "_blank" : undefined}
-                                    rel={subsub.isPdf ? "noopener noreferrer" : undefined}
-                                    className="flex items-center gap-2.5 w-full text-left px-5 py-2.5 text-[12.5px] font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 group"
+                              {/* ─── Level 2 flyout ───
+                                  Opens away from the screen edge (left for right-aligned menus).
+                                  Padding, not margin, bridges the gap so the hover isn't lost. */}
+                              {subItem.subItems && (
+                                <div
+                                  className={`absolute top-[-8px] ${item.alignRight ? "right-full pr-2.5" : "left-full pl-2.5"} transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                                    subOpen
+                                      ? "opacity-100 translate-x-0 visible"
+                                      : `opacity-0 ${item.alignRight ? "translate-x-2" : "-translate-x-2"} invisible pointer-events-none`
+                                  }`}
+                                  style={{ zIndex: 99999 }}
+                                >
+                                  <div
+                                    className="bg-white rounded-2xl p-2 min-w-[250px] border border-[#134698]/10"
+                                    style={{ boxShadow: "0 24px 56px -16px rgba(19,70,152,0.35), 0 6px 18px -6px rgba(19,70,152,0.12)" }}
                                   >
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#DE802B] opacity-60 group-hover:opacity-100 transition-all duration-200 flex-shrink-0" />
-                                    {subsub.label}
-                                  </a>
-                                ))}
-                              </div>
+                                    <div className="flex items-center gap-2 px-3 pt-2 pb-2.5 mb-1 border-b border-[#134698]/[0.08]">
+                                      <Icon className="w-4 h-4 text-[#DE802B]" />
+                                      <span className="text-[12.5px] font-bold text-[#134698]">{subItem.label}</span>
+                                    </div>
+                                    {subItem.subItems.map((subsub, subIdx) => (
+                                      <a
+                                        key={subIdx}
+                                        href={subsub.href}
+                                        target={subsub.isPdf ? "_blank" : undefined}
+                                        rel={subsub.isPdf ? "noopener noreferrer" : undefined}
+                                        className="group/sub flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-neutral-600 hover:text-[#134698] hover:bg-[#F4F7FC] transition-colors duration-200"
+                                      >
+                                        {subsub.isPdf ? (
+                                          <FileDown className="w-3.5 h-3.5 text-[#DE802B]/70 group-hover/sub:text-[#DE802B] flex-shrink-0" />
+                                        ) : (
+                                          <span className="w-1.5 h-1.5 rounded-full bg-[#DE802B]/50 group-hover/sub:bg-[#DE802B] group-hover/sub:w-3 transition-all duration-200 flex-shrink-0" />
+                                        )}
+                                        {subsub.label}
+                                      </a>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                             </div>
-                          )}
-
-                        </div>
-                      ))}
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
-
-              </div>
-            ))}
+                  )}
+                </div>
+              );
+            })}
           </div>
-
           {/* ─── Right Side Actions (Login + Mobile Toggle) ─── */}
           <div className="flex items-center justify-end gap-3 h-full">
             {/* Desktop Login Button */}
@@ -441,19 +559,14 @@ const Navbar = () => {
               href="https://admin.designhouse.co.in/"
               target="_blank"
               rel="noopener noreferrer"
-              className={`group hidden lg:flex items-center gap-1 px-3 py-1.5 text-[9.5px] font-bold tracking-widest uppercase border-2 rounded-lg bg-transparent transition-all duration-300 ${isScrolled
-                ? "border-[#134698] hover:bg-white hover:shadow-[0_0_15px_rgba(19,70,152,0.2)]"
-                : "border-white hover:bg-white hover:shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+              ref={(el) => { toneRefs.current.__login = el; }}
+              className={`group hidden lg:inline-flex items-center gap-1.5 px-4 py-2 text-[10.5px] font-bold tracking-[0.14em] uppercase rounded-full transition-all duration-300 ${toneOf("__login") === "light"
+                ? "bg-[#134698] text-white shadow-[0_6px_16px_-6px_rgba(19,70,152,0.6)] hover:bg-[#DE802B] hover:shadow-[0_6px_16px_-6px_rgba(222,128,43,0.6)]"
+                : "bg-white/10 text-white border border-white/40 backdrop-blur-sm hover:bg-white hover:text-[#134698]"
                 }`}
             >
-              <ShieldCheck className={`w-3.5 h-3.5 transition-transform group-hover:scale-110 ${isScrolled
-                ? "text-[#134698] group-hover:text-[#134698]"
-                : "text-white group-hover:text-[#134698]"
-                }`} />
-              <span className={`transition-colors ${isScrolled
-                ? "text-[#134698] group-hover:text-[#134698]"
-                : "text-white group-hover:text-[#134698]"
-                }`}>Login</span>
+              <ShieldCheck className="w-3.5 h-3.5 transition-transform group-hover:scale-110" />
+              <span>Login</span>
             </a>
 
             {/* Mobile Toggle */}

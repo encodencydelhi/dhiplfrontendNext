@@ -4,8 +4,10 @@ import React, { useEffect, useState } from "react";
 import CallFloat from "./CallFloat";
 import { api } from "@/lib/api";
 
+// WhatsApp chat number (country code + number, digits only). Fixed here, not taken from Settings.
+const WHATSAPP_NUMBER = "919310608427";
+
 const WhatsAppFloat: React.FC = () => {
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [message, setMessage] = useState(
     "Hello! I would like to know more about your interior design services."
   );
@@ -15,30 +17,20 @@ const WhatsAppFloat: React.FC = () => {
       try {
         const response = await api.get("/api/social-media");
         if (response.data.success && response.data.data) {
-          setPhoneNumber(response.data.data.whatsappNumber || "");
           if (response.data.data.whatsappMessage) {
             setMessage(response.data.data.whatsappMessage);
           }
         }
       } catch (error) {
-        console.error("Error fetching WhatsApp details:", error);
+        console.error("Error fetching WhatsApp message:", error);
       }
     };
     fetchData();
   }, []);
 
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
     message
   )}`;
-
-  // Don't render if no phone number
-  if (!phoneNumber) {
-    return (
-      <div className="fixed left-4 bottom-6 z-50 flex flex-col items-center gap-3">
-        <CallFloat />
-      </div>
-    )
-  }
 
   return (
     <div className="fixed left-4 bottom-6 z-50 flex flex-col items-center gap-3">
